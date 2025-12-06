@@ -112,10 +112,3 @@ Tras años de retrasos acumulados, sobrecostos persistentes y funcionalidad limi
 ## Conclusión
 
 La migración hacia sistemas distribuidos ofrece beneficios sustanciales en escalabilidad, resiliencia y agilidad organizacional. Sin embargo, el éxito requiere planificación meticulosa, ejecución disciplinada y compromiso organizacional sostenido. Los casos de Netflix y NHS ilustran que la diferencia entre éxito y fracaso radica frecuentemente en aspectos metodológicos y organizacionales más que en limitaciones puramente técnicas.
-
----
-
-**Autor:** José Sánchez Partida  
-**Fecha de elaboración:** 6 de diciembre de 2025  
-**Asignatura:** Programación Lado Servidor - Sistemas Distribuidos  
-**Periodo académico:** Semana 1
