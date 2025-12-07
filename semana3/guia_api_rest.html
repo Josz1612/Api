@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guía paso a paso: API REST</title>
+  <style>
+    :root{
+      --bg: #f8fafc;         /* gris muy claro */
+      --panel: #ffffff;      /* blanco */
+      --ink: #0f172a;        /* slate-900 */
+      --muted: #475569;      /* slate-600 */
+      --soft: #e2e8f0;       /* slate-200 */
+      --brand: #60a5fa;      /* azul pastel */
+      --brand-2: #a78bfa;    /* violeta pastel */
+      --ok: #22c55e;         /* verde */
+      --warn: #f59e0b;       /* ámbar */
+      --err: #ef4444;        /* rojo */
+      --code-bg: #0b1220;    /* fondo oscuro para código */
+      --code-ink: #e2e8f0;   /* texto de código */
+      --radius: 16px;
+      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+      --maxw: 1150px;
+    }
+    *{box-sizing: border-box}
+    html,body{margin:0}
+    body{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Noto Sans", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, var(--bg), #ffffff 40%);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    header.hero{
+      max-width: var(--maxw);
+      margin: 32px auto 0;
+      padding: 28px 20px 16px;
+    }
+    .title{
+      display: grid; gap: 8px;
+    }
+    .title h1{
+      margin: 0; font-weight: 800; letter-spacing: -0.02em;
+      font-size: clamp(28px, 3.2vw, 46px);
+    }
+    .title p{margin:0; color: var(--muted); max-width: 70ch}
+
+    .layout{
+      display: grid; grid-template-columns: 280px 1fr;
+      gap: 28px; max-width: var(--maxw);
+      margin: 10px auto; padding: 0 20px 40px;
+    }
+    nav.toc{
+      position: sticky; top: 16px; align-self: start;
+      background: var(--panel); padding: 16px; border: 1px solid var(--soft);
+      border-radius: 14px; box-shadow: var(--shadow);
+      max-height: calc(100vh - 32px); overflow: auto;
+    }
+    nav.toc h2{margin: 0 0 8px; font-size: 15px; color: var(--muted); font-weight: 700}
+    nav.toc ol{list-style: none; margin:0; padding:0;}
+    nav.toc a{display:block; padding:8px 10px; border-radius: 10px; text-decoration: none; color: var(--ink); font-size: 14.5px}
+    nav.toc a:hover{background: #eef6ff}
+    nav.toc li{margin-bottom: 2px}
+    nav.toc ol ol{margin-left: 12px;}
+
+    main.content{
+      display: grid; gap: 18px;
+    }
+    section.card{
+      background: var(--panel); border: 1px solid var(--soft); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 22px 22px;
+    }
+    section.card h2{
+      margin: 0 0 6px; font-size: clamp(20px, 2.2vw, 28px); letter-spacing: -0.01em
+    }
+    section.card h3{margin: 18px 0 6px; font-size: 18px}
+    section.card p{margin: 8px 0}
+    .kpis{display:flex; gap:10px; flex-wrap: wrap}
+    .badge{font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid var(--soft); background:#f6f8fb}
+    .badge.ok{border-color:#c7f9d4; background: #effaf3; color:#0b6b33}
+    .badge.warn{border-color:#fde68a; background:#fffbeb; color:#8a5200}
+    .badge.err{border-color:#fecaca; background:#fff1f2; color:#991b1b}
+    .badge.http{border-color:#dbeafe; background:#eff6ff; color:#1e40af}
+
+    code, pre{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace}
+    pre{margin:12px 0; background: var(--code-bg); color: var(--code-ink); padding:14px 16px; border-radius: 12px; overflow:auto}
+    pre code{font-size: 13.5px}
+    code.inline{background:#f1f5f9; padding:2px 6px; border-radius: 6px}
+
+    .grid{display:grid; gap:12px}
+    .grid.cols-2{grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));}
+    .grid.cols-3{grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));}
+
+    .callout{
+      border-left: 4px solid var(--brand); background: linear-gradient(90deg, #f0f7ff, #ffffff);
+      padding: 12px 14px; border-radius: 10px; margin: 10px 0
+    }
+    .callout strong{color:#0b3b8d}
+
+    .table{width:100%; border-collapse: collapse; font-size: 14.5px}
+    .table th,.table td{border:1px solid var(--soft); padding:8px 10px; text-align:left}
+    .table th{background:#f8fbff}
+
+    .pill{display:inline-block; padding:3px 10px; border-radius:999px; border:1px solid var(--soft)}
+    .pill.get{background:#e6f4ff}
+    .pill.post{background:#e8fff3}
+    .pill.put{background:#fff8e6}
+    .pill.patch{background:#f5e6ff}
+    .pill.delete{background:#ffe6ea}
+
+    footer{max-width:var(--maxw); margin: 8px auto 40px; padding: 0 20px; color: var(--muted)}
+	footer p {text-align:center;}
+    hr.sep{border:0; height:1px; background: linear-gradient(90deg, transparent, var(--soft), transparent); margin: 12px 0}
+
+    @media (max-width: 980px){
+      .layout{grid-template-columns: 1fr}
+      nav.toc{position: static; max-height: initial}
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="title">
+      <h1>API REST — guía práctica y pedagógica (paso a paso)</h1>
+      <p>Este documento explica de forma clara y progresiva qué es una API, qué significa REST, cómo diseñar recursos, cómo usar métodos HTTP correctamente, cómo manejar errores, seguridad, caché, paginación, versionado y más. Incluye ejercicios con <code class="inline">curl</code>, ejemplos en Python y C#, y listas de verificación para validar tu avance.</p>
+      <div class="kpis">
+        <span class="badge http">REST</span>
+        <span class="badge http">HTTP/1.1 · HTTP/2</span>
+        <span class="badge ok">Buenas prácticas</span>
+        <span class="badge warn">Idempotencia</span>
+        <span class="badge err">Manejo de errores</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Índice -->
+    <nav class="toc">
+      <h2>Contenido</h2>
+      <ol>
+        <li><a href="#intro">1. Conceptos básicos</a></li>
+        <li><a href="#rest">2. ¿Qué es REST?</a>
+          <ol>
+            <li><a href="#principios">2.1 Principios REST</a></li>
+            <li><a href="#recursos">2.2 Recursos y URIs</a></li>
+            <li><a href="#representaciones">2.3 Representaciones</a></li>
+          </ol>
+        </li>
+        <li><a href="#http">3. HTTP para APIs</a>
+          <ol>
+            <li><a href="#metodos">3.1 Métodos</a></li>
+            <li><a href="#codigos">3.2 Códigos de estado</a></li>
+            <li><a href="#headers">3.3 Encabezados clave</a></li>
+          </ol>
+        </li>
+        <li><a href="#diseno">4. Diseño de la API</a>
+          <ol>
+            <li><a href="#nombres">4.1 Nombres y rutas</a></li>
+            <li><a href="#query">4.2 Filtros, orden y paginación</a></li>
+            <li><a href="#versionado">4.3 Versionado</a></li>
+            <li><a href="#idempotencia">4.4 Idempotencia y seguridad de métodos</a></li>
+          </ol>
+        </li>
+        <li><a href="#seguridad">5. Seguridad y auth</a></li>
+        <li><a href="#errores">6. Manejo de errores</a></li>
+        <li><a href="#cache">7. Caché y control de concurrencia</a></li>
+        <li><a href="#ratelimit">8. Rate limiting</a></li>
+        <li><a href="#hateoas">9. HATEOAS (enlaces en respuestas)</a></li>
+        <li><a href="#docs">10. Documentación y contratos</a></li>
+        <li><a href="#testing">11. Pruebas: curl, Python y C#</a></li>
+        <li><a href="#ejercicios">12. Ejercicios guiados</a>
+          <ol>
+            <li><a href="#ej-flujo">12.5 Flujo de trabajo realista</a></li>
+          </ol>
+        </li>
+        <li><a href="#buenas">13. Buenas prácticas (checklist)</a></li>
+        <li><a href="#glosario">14. Glosario</a></li>
+      </ol>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="content">
+      <section id="intro" class="card">
+        <h2>1) Conceptos básicos</h2>
+        <p><strong>API</strong> (Application Programming Interface) es una interfaz que permite a un software comunicarse con otro. Una <strong>API web</strong> usa HTTP como protocolo de transporte y suele enviar/recibir JSON.</p>
+        <div class="callout">
+          <strong>Analogía del Restaurante:</strong> Piensa en una API como el camarero de un restaurante.
+          <ul>
+            <li>El <b>cliente</b> eres tú, que tienes una necesidad (hambre).</li>
+            <li>El <b>servidor</b> es la cocina, que tiene los recursos y la capacidad de preparar platos.</li>
+            <li>La <b>API (el camarero y el menú)</b> es el intermediario que te ofrece un contrato claro (el menú) sobre qué puedes pedir y cómo. El camarero toma tu <b>petición</b>, la lleva a la cocina y te trae una <b>respuesta</b> (tu plato).</li>
+          </ul>
+        </div>
+        <h3>Tu primera llamada a una API... ¡con el navegador!</h3>
+        <p>Para desmitificar el concepto, haz esto: abre una nueva pestaña en tu navegador y visita la URL <a href="https://jsonplaceholder.typicode.com/users/1" target="_blank">https://jsonplaceholder.typicode.com/users/1</a>. Lo que ves es la respuesta de una API REST pública. ¡Acabas de hacer una petición <code class="inline">GET</code> sin darte cuenta!</p>
+        <div class="callout"><strong>Idea clave:</strong> una API expone <em>recursos</em> (cosas) a través de <em>URIs</em> y define cómo crearlos, consultarlos, actualizarlos y eliminarlos usando métodos HTTP.</div>
+        <p><strong>Ejemplos de recursos:</strong> <code class="inline">/usuarios</code>, <code class="inline">/pedidos</code>, <code class="inline">/cursos/42/alumnos</code>.</p>
+      </section>
+
+      <section id="rest" class="card">
+        <h2>2) ¿Qué es REST?</h2>
+        <p>REST (Representational State Transfer) es un estilo arquitectónico para construir APIs que aprovechan al máximo HTTP.</p>
+        <h3 id="principios">2.1 Principios REST</h3>
+        <ul>
+          <li><strong>Cliente–Servidor:</strong> separa interfaz (cliente) de almacenamiento/procesamiento (servidor).</li>
+          <li><strong>Sin estado (stateless):</strong> cada petición se procesa de forma independiente (lleva todo lo necesario: auth, datos, etc.).</li>
+          <li><strong>Cacheable:</strong> las respuestas deben indicar si pueden ser cacheadas.</li>
+          <li><strong>Interfaz uniforme:</strong> uso coherente de métodos, códigos y URIs orientadas a recursos.</li>
+          <li><strong>Sistema por capas:</strong> la arquitectura puede tener proxies, gateways, balanceadores, etc.</li>
+          <li><strong>(Opcional) Código bajo demanda:</strong> el servidor podría enviar código ejecutable.</li>
+        </ul>
+        <h3 id="recursos">2.2 Recursos y URIs</h3>
+        <p>Un <strong>recurso</strong> es una entidad lógica (p. ej., un <em>usuario</em>). Se identifica con una <strong>URI</strong> estable:</p>
+        <pre><code>GET /usuarios            # colección
+GET /usuarios/123        # recurso específico
+GET /usuarios/123/pedidos  # subrecurso</code></pre>
+        <h3 id="representaciones">2.3 Representaciones</h3>
+        <p>Un mismo recurso puede tener múltiples <em>representaciones</em> (JSON, XML, CSV). El cliente usa <code class="inline">Accept</code> y el servidor responde con <code class="inline">Content-Type</code>.</p>
+        <pre><code>Accept: application/json
+Content-Type: application/json; charset=utf-8</code></pre>
+      </section>
+
+      <section id="http" class="card">
+        <h2>3) HTTP para APIs</h2>
+        <h3 id="metodos">3.1 Métodos y semántica</h3>
+        <table class="table">
+          <thead>
+            <tr><th>Método</th><th>Acción típica</th><th>Idempotente</th><th>Entidad en la petición</th><th>Ejemplo</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="pill get">GET</span></td><td>Leer</td><td>Sí</td><td>No</td><td><code>/usuarios?rol=docente</code></td></tr>
+            <tr><td><span class="pill post">POST</span></td><td>Crear / acción no idempotente</td><td>No</td><td>Opcional (cuerpo)</td><td><code>/usuarios</code></td></tr>
+            <tr><td><span class="pill put">PUT</span></td><td>Reemplazar (o crear si permite upsert)</td><td>Sí</td><td>Sí</td><td><code>/usuarios/123</code></td></tr>
+            <tr><td><span class="pill patch">PATCH</span></td><td>Actualización parcial</td><td>Depende</td><td>Sí</td><td><code>/usuarios/123</code></td></tr>
+            <tr><td><span class="pill delete">DELETE</span></td><td>Eliminar</td><td>Sí</td><td>No</td><td><code>/usuarios/123</code></td></tr>
+          </tbody>
+        </table>
+        <div class="callout"><strong>Idempotencia:</strong> ejecutar la misma operación varias veces produce el mismo efecto (p. ej., <code class="inline">DELETE</code> o <code class="inline">PUT</code> sobre el mismo recurso).</div>
+
+        <h3 id="codigos">3.2 Códigos de estado (más usados)</h3>
+        <div class="grid cols-3">
+          <div>
+            <p class="badge http">2xx Éxito</p>
+            <ul>
+              <li><strong>200 OK</strong> — respuesta normal</li>
+              <li><strong>201 Created</strong> — recurso creado (usa <code class="inline">Location</code>)</li>
+              <li><strong>204 No Content</strong> — sin cuerpo (p. ej., <code>DELETE</code>)</li>
+            </ul>
+          </div>
+          <div>
+            <p class="badge http">4xx Error del cliente</p>
+            <ul>
+              <li><strong>400 Bad Request</strong> — error en parámetros/cuerpo</li>
+              <li><strong>401 Unauthorized</strong> — falta/expiró credencial</li>
+              <li><strong>403 Forbidden</strong> — credencial no tiene permiso</li>
+              <li><strong>404 Not Found</strong> — recurso inexistente</li>
+              <li><strong>409 Conflict</strong> — conflicto de estado (p. ej., duplicado)</li>
+              <li><strong>422 Unprocessable Entity</strong> — validación fallida</li>
+              <li><strong>429 Too Many Requests</strong> — rate limit</li>
+            </ul>
+          </div>
+          <div>
+            <p class="badge http">5xx Error del servidor</p>
+            <ul>
+              <li><strong>500 Internal Server Error</strong></li>
+              <li><strong>502 Bad Gateway</strong></li>
+              <li><strong>503 Service Unavailable</strong></li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 id="headers">3.3 Encabezados clave</h3>
+        <ul>
+          <li><code class="inline">Authorization: Bearer &lt;token&gt;</code></li>
+          <li><code class="inline">Accept</code> / <code class="inline">Content-Type</code> (negociación de contenido)</li>
+          <li><code class="inline">Cache-Control</code>, <code class="inline">ETag</code>, <code class="inline">If-None-Match</code> (caché)</li>
+          <li><code class="inline">Location</code> (URI del recurso creado)</li>
+          <li><code class="inline">Link</code> (paginación/HATEOAS)</li>
+          <li><code class="inline">X-Request-Id</code> (trazabilidad)</li>
+          <li><code class="inline">Retry-After</code> (429/503)</li>
+        </ul>
+      </section>
+
+      <section id="diseno" class="card">
+        <h2>4) Diseño de la API</h2>
+        <h3 id="nombres">4.1 Nombres y rutas</h3>
+        <ul>
+          <li>Usar sustantivos en <strong>plural</strong>: <code class="inline">/alumnos</code>, <code class="inline">/pedidos</code>.</li>
+          <li>Evitar verbos en la URI: mejor <code class="inline">POST /pedidos</code> que <code class="inline">/crearPedido</code>.</li>
+          <li>Rutas jerárquicas para relaciones: <code class="inline">/cursos/42/alumnos</code>.</li>
+          <li>Campos consistentes (snake_case o camelCase) y tiempos en ISO-8601 <code class="inline">YYYY-MM-DDThh:mm:ssZ</code>.</li>
+        </ul>
+
+        <h3 id="query">4.2 Filtros, orden y paginación</h3>
+        <pre><code># Filtros por query string
+GET /pedidos?estado=pagado&amp;desde=2025-01-01&amp;hasta=2025-01-31
+
+# Orden
+GET /alumnos?sort=apellido,-nombre  # - indica descendente
+
+# Paginación (offset/limit)
+GET /alumnos?limit=50&amp;offset=100
+
+# Paginación (cursor)
+GET /alumnos?cursor=eyJwYWdlIjoz...  # escalable</code></pre>
+        <p>Incluye metadatos de paginación en la respuesta o cabeceras <code class="inline">Link</code>:</p>
+        <pre><code>HTTP/1.1 200 OK
+Link: &lt;https://api.ejemplo.com/alumnos?cursor=abc&gt;; rel="next",
+      &lt;https://api.ejemplo.com/alumnos?cursor=prev&gt;; rel="prev"</code></pre>
+
+        <h3 id="versionado">4.3 Versionado</h3>
+        <ul>
+          <li>En la ruta: <code class="inline">/v1/pedidos</code> (simple y explícito).</li>
+          <li>O mediante <em>content negotiation</em>: <code class="inline">Accept: application/vnd.miapi.v2+json</code>.</li>
+          <li>Evita romper clientes: depreca y da tiempo de migración.</li>
+        </ul>
+
+        <h3 id="idempotencia">4.4 Idempotencia y seguridad de métodos</h3>
+        <ul>
+          <li><strong>PUT</strong> reemplaza completo; <strong>PATCH</strong> cambia parcialmente.</li>
+          <li>Para <strong>POST</strong> que crean transacciones sensibles, puedes usar una <em>Idempotency-Key</em> en cabecera para evitar duplicados si el cliente reintenta.</li>
+          <li>Evita efectos colaterales en <strong>GET</strong>. Es seguro y no debe modificar estado.</li>
+        </ul>
+      </section>
+
+      <section id="seguridad" class="card">
+        <h2>5) Seguridad y autenticación</h2>
+        <ul>
+          <li><strong>HTTPS siempre</strong> (TLS) para proteger credenciales y datos.</li>
+          <li><strong>API Keys</strong>: sencillas, buena rotación; limitar alcance.</li>
+          <li><strong>Bearer Tokens</strong> (p. ej., JWT): firmados; incluir expiración corta.</li>
+          <li><strong>OAuth 2.0</strong>: delega acceso sin compartir contraseña.
+            <ul>
+                <li>Usa el flujo <i>Authorization Code</i> para apps web con backend o apps móviles.</li>
+                <li>Usa el flujo <i>Client Credentials</i> para comunicación segura entre servicios (M2M).</li>
+            </ul>
+          </li>
+          <li><strong>Scopes</strong> y <strong>RBAC</strong> para autorización granular.</li>
+          <li><strong>Entrada confiable</strong>: valida y sanea payloads; tamaño máx. de cuerpo.</li>
+          <li><strong>CORS (Cross-Origin Resource Sharing)</strong>: Si tu API será consumida desde un navegador web (frontend), asegúrate de que el servidor envíe los encabezados correctos (p.ej., <code class="inline">Access-Control-Allow-Origin</code>) para evitar que el navegador bloquee las peticiones por seguridad.</li>
+        </ul>
+        <pre><code>Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+      </section>
+
+      <section id="errores" class="card">
+        <h2>6) Manejo de errores</h2>
+        <p>Respuestas consistentes, legibles por humanos y máquinas. Recomendado <em>Problem Details</em> (RFC 7807).</p>
+        <pre><code>HTTP/1.1 422 Unprocessable Entity
+Content-Type: application/problem+json
+
+{
+  "type": "https://api.ejemplo.com/errors/validation",
+  "title": "Errores de validación",
+  "status": 422,
+  "detail": "El campo email no es válido.",
+  "errors": {
+    "email": ["Formato inválido"],
+    "password": ["Debe tener al menos 10 caracteres"]
+  },
+  "traceId": "3f2e9a6a-5d7a-4a8d-bc51"
+}</code></pre>
+        <div class="callout"><strong>Consejo:</strong> nunca expongas trazas internas en producción; usa un <code class="inline">traceId</code> para correlacionar en tus logs.</div>
+      </section>
+
+      <section id="cache" class="card">
+        <h2>7) Caché y control de concurrencia</h2>
+        <h3>Caché condicional con ETags</h3>
+        <ol>
+          <li>El servidor devuelve <code class="inline">ETag</code> en una lectura.</li>
+          <li>El cliente reintenta con <code class="inline">If-None-Match</code>.</li>
+          <li>Si no cambió, el servidor responde <strong>304 Not Modified</strong> sin cuerpo.</li>
+        </ol>
+        <pre><code># 1) Respuesta inicial
+HTTP/1.1 200 OK
+ETag: "W/\"user-123-v5\""
+
+# 2) Lectura condicional
+GET /usuarios/123
+If-None-Match: "W/\"user-123-v5\""
+
+# 3) Sin cambios
+HTTP/1.1 304 Not Modified</code></pre>
+        <h3>Control de concurrencia optimista</h3>
+        <p>Requiere <code class="inline">If-Match</code> en actualizaciones para evitar pisar cambios de otros.</p>
+        <pre><code>PATCH /usuarios/123
+If-Match: "W/\"user-123-v5\""</code></pre>
+      </section>
+
+      <section id="ratelimit" class="card">
+        <h2>8) Rate limiting</h2>
+        <p>Protege tu API y da señales claras al cliente.</p>
+        <pre><code>HTTP/1.1 429 Too Many Requests
+RateLimit-Limit: 1000
+RateLimit-Remaining: 0
+RateLimit-Reset: 30
+Retry-After: 30</code></pre>
+      </section>
+
+      <section id="hateoas" class="card">
+        <h2>9) HATEOAS (enlaces en respuestas)</h2>
+        <p>Incluye enlaces navegables para descubrir acciones relacionadas.</p>
+        <pre><code>{
+  "id": 123,
+  "nombre": "Curso de APIs",
+  "_links": {
+    "self": {"href": "/cursos/123"},
+    "alumnos": {"href": "/cursos/123/alumnos"},
+    "inscribir": {"href": "/cursos/123/inscripciones", "method": "POST"}
+  }
+}</code></pre>
+      </section>
+
+      <section id="docs" class="card">
+        <h2>10) Documentación y contratos</h2>
+        <ul>
+          <li><strong>OpenAPI</strong> (<code class="inline">openapi.yaml</code>): describe rutas, modelos, auth.</li>
+          <li><strong>Swagger UI</strong> para exploración interactiva.</li>
+          <li>Publica ejemplos realistas y <em>schemas</em> reutilizables; mantén versión de docs alineada.</li>
+          <li>Incluye políticas de <em>deprecation</em> y límites.</li>
+        </ul>
+        <pre><code>openapi: 3.0.3
+paths:
+  /usuarios:
+    get:
+      summary: Lista usuarios
+      parameters:
+        - in: query
+          name: rol
+          schema: { type: string }
+      responses:
+        '200': { description: OK }</code></pre>
+      </section>
+
+      <section id="testing" class="card">
+        <h2>11) Pruebas con herramientas comunes</h2>
+        <p>La línea de comandos con <code class="inline">curl</code> es universal, pero herramientas gráficas como <strong>Postman</strong> o <strong>Insomnia</strong> son excelentes para empezar, organizar colecciones de peticiones y colaborar en equipo.</p>
+        <div class="grid cols-2">
+          <div>
+            <h3>11.1 <code>curl</code></h3>
+            <pre><code># GET con filtro
+curl -s "https://api.ejemplo.com/usuarios?rol=docente" \
+  -H "Accept: application/json" 
+
+# POST (crear)
+curl -s -X POST https://api.ejemplo.com/usuarios \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"Ana","email":"ana@uni.mx"}'
+
+# PATCH con control de concurrencia
+curl -s -X PATCH https://api.ejemplo.com/usuarios/123 \
+  -H "Content-Type: application/json" \
+  -H "If-Match: \"W/\\\"user-123-v5\\\"\"" \
+  -d '{"telefono":"+52-xxx"}'</code></pre>
+          </div>
+          <div>
+            <h3>11.2 Python (<code>requests</code>)</h3>
+            <pre><code>import requests
+base = "https://api.ejemplo.com"
+
+r = requests.get(f"{base}/usuarios", params={"rol": "docente"})
+r.raise_for_status()
+for u in r.json()["data"]:
+    print(u["nombre"])
+
+# POST
+resp = requests.post(
+    f"{base}/usuarios",
+    json={"nombre": "Ana", "email": "ana@uni.mx"},
+    headers={"Authorization": "Bearer &lt;TOKEN&gt;"}
+)
+print(resp.status_code, resp.headers.get("Location"))</code></pre>
+          </div>
+        </div>
+        <h3>11.3 C# (<code>HttpClient</code>)</h3>
+        <pre><code>using System.Net.Http;
+using System.Net.Http.Json;
+
+var http = new HttpClient { BaseAddress = new Uri("https://api.ejemplo.com") };
+var usuarios = await http.GetFromJsonAsync&lt;List&lt;Usuario&gt;&gt;("/usuarios?rol=docente");
+
+var res = await http.PostAsJsonAsync("/usuarios", new { nombre = "Ana", email = "ana@uni.mx" });
+if (res.IsSuccessStatusCode)
+{
+    Console.WriteLine($"Creado en: {res.Headers.Location}");
+}</code></pre>
+      </section>
+
+      <section id="ejercicios" class="card">
+        <h2>12) Ejercicios guiados (paso a paso)</h2>
+        <h3>12.1 Prueba rápida con un servicio público</h3>
+        <p>Usa un servicio de prueba como <em>JSONPlaceholder</em> o <em>httpbin</em> para practicar.</p>
+        <pre><code># Leer una colección ficticia
+curl https://jsonplaceholder.typicode.com/posts?userId=1
+
+# Probar eco de headers y cuerpo
+curl -X POST https://httpbin.org/post \
+  -H "Content-Type: application/json" \
+  -d '{"hola":"mundo"}'</code></pre>
+        <h3>12.2 Diseña un recurso propio</h3>
+        <ol>
+          <li>Elige la entidad: p. ej., <em>tareas</em>.</li>
+          <li>Define URIs: <code class="inline">/tareas</code>, <code class="inline">/tareas/{id}</code>.</li>
+          <li>Modelo JSON mínimo:</li>
+        </ol>
+        <pre><code>{
+  "id": 101,
+  "titulo": "Preparar clase de APIs",
+  "completada": false,
+  "creadaEn": "2025-09-01T15:30:00Z"
+}</code></pre>
+        <p>Especifica reglas de validación (longitudes, formatos, obligatorios) y respuestas de error estandarizadas.</p>
+        <h3>12.3 Paginación</h3>
+        <pre><code>GET /tareas?limit=20&amp;offset=0
+HTTP/1.1 200 OK
+{
+  "data": [ /* 20 tareas */ ],
+  "paging": {"limit":20, "offset":0, "total": 134}
+}</code></pre>
+        <h3>12.4 Caché con ETag</h3>
+        <pre><code># cliente guarda el ETag devuelto y vuelve a leer condicionalmente
+GET /tareas/101
+If-None-Match: "W/\"tarea-101-v3\""</code></pre>
+        
+        <h3 id="ej-flujo">12.5 Flujo de trabajo realista: un carrito de compras</h3>
+        <p>Un caso de uso real implica orquestar varias llamadas. Imagina un flujo de e-commerce:</p>
+        <ol>
+          <li><b>Crear un carrito:</b> El cliente inicia una sesión de compra.
+            <pre><code>POST /carritos</code></pre>
+          </li>
+          <li><b>Añadir productos:</b> Se añaden items al carrito recién creado.
+            <pre><code>POST /carritos/abc-123/items
+{ "productoId": "prod-456", "cantidad": 2 }</code></pre>
+          </li>
+          <li><b>Revisar el carrito:</b> El cliente consulta el estado actual.
+            <pre><code>GET /carritos/abc-123</code></pre>
+          </li>
+          <li><b>Crear el pedido:</b> Se finaliza la compra, convirtiendo el carrito en un pedido.
+            <pre><code>POST /pedidos
+{ "carritoId": "abc-123", "direccionEnvio": "..." }
+
+# Respuesta del servidor
+HTTP/1.1 201 Created
+Location: /pedidos/xyz-789</code></pre>
+          </li>
+          <li><b>Pagar el pedido:</b> Se asocia un pago al nuevo pedido.
+            <pre><code>POST /pedidos/xyz-789/pagos
+{ "metodo": "tarjeta", "monto": 199.99 }</code></pre>
+          </li>
+        </ol>
+
+        <div class="callout"><strong>Metacognición:</strong> Anota cómo aplicaste cada principio REST y qué decisiones tomaste en nombres, filtros y manejo de errores.</div>
+      </section>
+
+      <section id="buenas" class="card">
+        <h2>13) Buenas prácticas (checklist)</h2>
+        <ul>
+          <li>✅ URIs con sustantivos en plural, consistentes y sin verbos.</li>
+          <li>✅ Métodos HTTP correctos; evita efectos colaterales en <code class="inline">GET</code>.</li>
+          <li>✅ Respuestas con códigos adecuados y mensajes claros.</li>
+          <li>✅ <em>Problem+JSON</em> para errores; incluye <code class="inline">traceId</code>.</li>
+          <li>✅ Paginación, filtrado y orden documentados.</li>
+          <li>✅ Versionado explícito y política de deprecación.</li>
+          <li>✅ Seguridad: HTTPS, tokens con expiración, scopes, CORS bien configurado.</li>
+          <li>✅ Rate limiting + cabeceras de cuota.</li>
+          <li>✅ Caché con <code class="inline">ETag</code> y control de concurrencia con <code class="inline">If-Match</code>.</li>
+          <li>✅ OpenAPI actualizado y ejemplos reproducibles.</li>
+          <li>✅ Observabilidad: <em>request id</em>, logs estructurados, métricas.</li>
+        </ul>
+      </section>
+
+      <section id="glosario" class="card">
+        <h2>14) Glosario mínimo</h2>
+        <ul>
+          <li><strong>Recurso:</strong> entidad lógica de la API (p. ej., alumno).</li>
+          <li><strong>Representación:</strong> formato del recurso (JSON, XML, CSV).</li>
+          <li><strong>Idempotencia:</strong> repetir la operación produce el mismo resultado.</li>
+          <li><strong>HATEOAS:</strong> enlaces en respuestas para descubrir acciones.</li>
+          <li><strong>ETag:</strong> identificador de versión de una representación.</li>
+          <li><strong>OpenAPI:</strong> especificación estandarizada de contratos de API.</li>
+          <li><strong>RBAC:</strong> control de acceso basado en roles.</li>
+          <li><strong>CORS:</strong> mecanismo de seguridad del navegador para peticiones a dominios distintos.</li>
+        </ul>
+        <hr class="sep" />
+        <p style="font-size:14px;color:var(--muted)">👩‍🏫 Sugerencia didáctica: Se solicita a cada equipo extender el ejemplo de <em>tareas</em> con su propio subrecurso (p. ej., <code class="inline">/tareas/{id}/comentarios</code>) y presenten decisiones de diseño justificadas.</p>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    Hecho para aprender y enseñar APIs REST de forma clara. Última revisión: 2025-09-03.
+	<p><em>Programación del lado del Servidor (c) 2025</em></p>
+  </footer>
+</body>
+</html>

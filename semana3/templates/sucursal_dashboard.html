@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMarket Sucursal - Panel de Control</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/sucursal_dashboard.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Principal (Tono Azul/Indigo para diferenciar de Central) -->
+    <div class="main-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-shop-window me-3" style="font-size: 2rem;"></i>
+                        <div>
+                            <h1>EcoMarket Sucursal</h1>
+                            <p class="subtitle">ID: <span id="branchIdDisplay">{{ branch_id }}</span> | Modo Autónomo</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto d-flex align-items-center gap-3">
+                    <div class="status-badge">
+                        <i class="bi bi-wifi me-2"></i>En Línea
+                    </div>
+                    <div class="clock" id="clock">--:--:--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Tarjetas de Estadísticas -->
+        <div class="row stats-row">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="icon blue">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <div class="number blue" id="localProducts">{{ total_products }}</div>
+                    <div class="label">Productos Locales</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="icon green">
+                        <i class="bi bi-cart-check"></i>
+                    </div>
+                    <div class="number green" id="totalSales">{{ sales|length }}</div>
+                    <div class="label">Ventas Realizadas</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="icon purple">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <div class="number purple" id="totalRevenue">$0.00</div>
+                    <div class="label">Ingresos Totales</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sección de Venta (POS) -->
+            <div class="col-lg-5">
+                <div class="inventory-section h-100">
+                    <div class="inventory-header">
+                        <h3><i class="bi bi-basket me-2"></i>Punto de Venta</h3>
+                    </div>
+                    <div class="card border-0 shadow-sm mt-3">
+                        <div class="card-body">
+                            <form id="saleForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Seleccionar Producto</label>
+                                    <select class="form-select" id="productSelect" required>
+                                        <option value="" selected disabled>Elija un producto...</option>
+                                        {% for product in inventory %}
+                                        <option value="{{ product.id }}" data-price="{{ product.price }}" data-stock="{{ product.stock }}">
+                                            {{ product.name }} - ${{ product.price }} (Stock: {{ product.stock }})
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Cantidad</label>
+                                    <input type="number" class="form-control" id="quantityInput" min="1" value="1" required>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="h5 mb-0">Total:</span>
+                                    <span class="h4 text-primary mb-0" id="saleTotal">$0.00</span>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 btn-lg">
+                                    <i class="bi bi-check-circle me-2"></i>Procesar Venta
+                                </button>
+                            </form>
+                            <div id="saleMessage" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventario Local -->
+            <div class="col-lg-7">
+                <div class="inventory-section h-100">
+                    <div class="inventory-header d-flex justify-content-between align-items-center">
+                        <h3><i class="bi bi-list-check me-2"></i>Inventario Local</h3>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="loadInventory()">
+                            <i class="bi bi-arrow-clockwise"></i> Actualizar
+                        </button>
+                    </div>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Producto</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody">
+                                <!-- Llenado por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de Ventas Recientes -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="inventory-section">
+                    <div class="inventory-header">
+                        <h3><i class="bi bi-clock-history me-2"></i>Últimas Ventas</h3>
+                    </div>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID Venta</th>
+                                    <th>Producto</th>
+                                    <th>Cant.</th>
+                                    <th>Total</th>
+                                    <th>Hora</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesTableBody">
+                                <!-- Llenado por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/sucursal_dashboard.js"></script>
+</body>
+</html>

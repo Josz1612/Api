@@ -1,0 +1,337 @@
+/* 
+===============================================
+EcoMarket Central Dashboard - Modern Design
+===============================================
+*/
+
+:root {
+    /* Color Palette */
+    --primary-color: #10b981; /* Emerald 500 */
+    --primary-dark: #059669;  /* Emerald 600 */
+    --primary-light: #d1fae5; /* Emerald 100 */
+    --secondary-color: #3b82f6; /* Blue 500 */
+    --accent-color: #f59e0b;    /* Amber 500 */
+    --danger-color: #ef4444;    /* Red 500 */
+    
+    /* Neutrals */
+    --bg-body: #f3f4f6;       /* Gray 100 */
+    --bg-card: #ffffff;
+    --text-main: #1f2937;     /* Gray 800 */
+    --text-muted: #6b7280;    /* Gray 500 */
+    --border-color: #e5e7eb;  /* Gray 200 */
+
+    /* Shadows & Radius */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+}
+
+body {
+    background-color: var(--bg-body);
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- Header --- */
+.main-header {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+    color: white;
+    padding: 1.5rem 0;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.main-header h1 {
+    font-weight: 700;
+    font-size: 1.75rem;
+    margin: 0;
+    letter-spacing: -0.025em;
+}
+
+.main-header .subtitle {
+    opacity: 0.9;
+    font-weight: 400;
+    font-size: 0.95rem;
+}
+
+.status-badge {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* --- Stats Cards --- */
+.stats-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-light);
+}
+
+.stats-card .icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bg-body);
+    transition: background 0.3s ease;
+}
+
+.stats-card:hover .icon {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+.stats-card .number {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.stats-card .label {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Color variations for icons/numbers */
+.stats-card .icon.blue { color: var(--secondary-color); background: #eff6ff; }
+.stats-card .icon.cyan { color: #06b6d4; background: #ecfeff; }
+.stats-card .icon.yellow { color: var(--accent-color); background: #fffbeb; }
+.stats-card .icon.green { color: var(--primary-color); background: #ecfdf5; }
+
+/* --- Sections (Inventory & Notifications) --- */
+.inventory-section, .notifications-section {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    height: 100%;
+}
+
+.inventory-header, .notifications-header {
+    padding: 1.25rem 1.5rem;
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inventory-header h3, .notifications-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* --- Tables --- */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: #f9fafb;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95rem;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.badge {
+    padding: 0.35em 0.65em;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+/* --- Notifications Feed --- */
+.notifications-body {
+    padding: 0;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: background 0.2s;
+}
+
+.notification-item:hover {
+    background-color: #f9fafb;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-icon {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    margin-bottom: 0.25rem;
+}
+
+.notification-details {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 0.25rem;
+}
+
+.notification-amount {
+    font-weight: 700;
+    color: var(--primary-dark);
+    font-size: 1rem;
+}
+
+/* --- Buttons --- */
+.btn {
+    border-radius: 0.5rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s;
+}
+
+.btn-success {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-success:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-light {
+    background: rgba(255,255,255,0.9);
+    border: none;
+    color: var(--primary-dark);
+}
+
+.btn-light:hover {
+    background: white;
+}
+
+/* --- Pagination --- */
+.pagination .page-link {
+    border: none;
+    color: var(--text-muted);
+    border-radius: 6px;
+    margin: 0 2px;
+    font-weight: 500;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.pagination .page-link:hover {
+    background-color: var(--bg-body);
+    color: var(--primary-dark);
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .stats-row .col-6 {
+        margin-bottom: 1rem;
+    }
+    .main-header h1 {
+        font-size: 1.5rem;
+    }
+}

@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fase 2 · Sockets Estructurados en C#/.NET 8 + Puente a REST</title>
+  <style>
+    :root{
+      --bg:#0b0e11; --muted:#0f141a; --fg:#e6edf3; --fg-2:#b1bac4; --acc:#4cc2ff; --ok:#66d9a3; --warn:#ffd166; --err:#ff6b6b; --card:#11161c;
+      --code-bg:#0a0f14; --border:#1c232b; --shadow:0 10px 30px rgba(0,0,0,.35);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --radius: 14px; --radius-sm: 10px; --maxw: 1080px;
+    }
+    [data-theme="light"]{
+      --bg:#f7f9fc; --muted:#ffffff; --fg:#0e141b; --fg-2:#475467; --acc:#0077ff; --ok:#1a7f5a; --warn:#b7791f; --err:#c53030; --card:#ffffff;
+      --code-bg:#0f172a; --border:#e6eaf0; --shadow:0 12px 28px rgba(10,22,70,.08);
+    }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);line-height:1.6}
+    .wrap{max-width:var(--maxw);margin:auto;padding:24px}
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--bg) 0%, color-mix(in oklab, var(--bg) 90%, transparent) 100%);backdrop-filter: blur(6px)}
+    .topbar{display:flex;gap:14px;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),#8b5cf6);box-shadow:var(--shadow)}
+    h1{font-size:clamp(22px,2.6vw,32px);margin:0}
+    .actions{display:flex;gap:8px;align-items:center}
+    button, .chip{border:1px solid var(--border);background:var(--muted);color:var(--fg);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600}
+    button:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+    .grid{display:grid;grid-template-columns:300px 1fr;gap:24px;margin-top:24px}
+    nav{position:sticky;top:76px;align-self:start;background:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+    nav h3{margin:4px 0 10px 0;font-size:14px;color:var(--fg-2);letter-spacing:.08em;text-transform:uppercase}
+    nav a{display:block;padding:8px 10px;border-radius:10px;color:var(--fg-2);text-decoration:none;border:1px solid transparent}
+    nav a:hover{color:var(--fg);border-color:var(--border);background:color-mix(in oklab, var(--muted) 90%, var(--acc) 10%)}
+    section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;margin-bottom:18px;box-shadow:var(--shadow)}
+    section h2{margin-top:0;font-size:clamp(20px,2.2vw,26px)}
+    .kpi{display:flex;gap:10px;flex-wrap:wrap;margin:.2rem 0 1rem}
+    .kpi .chip{background:transparent}
+    .tip{border-left:4px solid var(--acc);background:color-mix(in oklab, var(--card) 85%, var(--acc) 10%);padding:12px;border-radius:10px;margin:10px 0}
+    .warn{border-left:4px solid var(--warn);background:color-mix(in oklab, var(--card) 85%, var(--warn) 10%)}
+    .ok{border-left:4px solid var(--ok)}
+    .err{border-left:4px solid var(--err)}
+    code, pre{font-family:var(--mono)}
+    pre{position:relative;background:var(--code-bg);color:#e5e7eb;padding:16px;border-radius:var(--radius-sm);overflow:auto;border:1px solid var(--border)}
+    .copy{position:absolute;top:8px;right:8px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--border);cursor:pointer}
+    .task{display:grid;grid-template-columns:24px 1fr;gap:12px;margin:8px 0;align-items:start}
+    .task input{width:18px;height:18px;margin-top:4px}
+    .two{display:grid;gap:16px}
+    @media (min-width: 880px){.two{grid-template-columns:1fr 1fr}}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border:1px solid var(--border);padding:10px;border-radius:6px}
+    th{background:color-mix(in oklab, var(--card) 85%, var(--acc) 12%);text-align:left}
+    .small{font-size:.95rem;color:var(--fg-2)}
+    footer{opacity:.75;padding:30px 0}
+    details{border:1px dashed var(--border);padding:10px;border-radius:12px}
+    summary{cursor:pointer;font-weight:700}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Fase 2 · Sockets Estructurados en C#/.NET 8 + Puente a REST</h1>
+          <div class="small">Implementarás un eco TCP/UDP con <strong>buenas prácticas</strong> (capas, DI, logging, tests) y construirás un <strong>puente HTTP (Minimal API)</strong> hacia el servidor TCP.</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="theme">🌗 Modo claro/oscuro</button>
+        <button onclick="window.print()">🖨️ Imprimir / PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <nav>
+        <h3>Contenido</h3>
+        <a href="#objetivos">1. Objetivos</a>
+        <a href="#arquitectura">2. Arquitectura</a>
+        <a href="#preparacion">3. Preparación del entorno</a>
+        <a href="#solucion">4. Solución TCP con capas</a>
+        <a href="#udp">5. Servicio UDP</a>
+        <a href="#rest">6. Puente HTTP → TCP (Minimal API)</a>
+        <a href="#testing">7. Pruebas automatizadas</a>
+        <a href="#validacion">8. Validación & checklist</a>
+        <a href="#troubleshooting">9. Troubleshooting</a>
+        <a href="#entregables">10. Entregables y rúbrica</a>
+        <a href="#extensiones">11. Extensiones</a>
+      </nav>
+
+      <div>
+        <section id="objetivos">
+          <h2>1) Objetivos y resultados</h2>
+          <div class="kpi">
+            <span class="chip">Duración: 120–150 min</span>
+            <span class="chip">Nivel: Intermedio</span>
+            <span class="chip">Modalidad: Autogestión</span>
+          </div>
+          <ul>
+            <li>Estructurar una app de sockets en C#/.NET 8 con <strong>capas</strong> y <strong>Dependency Injection</strong>.</li>
+            <li>Agregar <strong>logging</strong>, manejo de <strong>cancelación</strong> y <strong>concurrencia</strong> para múltiples clientes.</li>
+            <li>Exponer un <strong>puente HTTP</strong> que use internamente el cliente TCP.</li>
+            <li>Escribir <strong>pruebas automatizadas</strong> para validar el flujo.</li>
+          </ul>
+          <div class="tip ok"><strong>Resultado esperado:</strong> solución multi‑proyecto con servidor TCP, cliente TCP, servidor UDP y una Minimal API que invoca el cliente.</div>
+        </section>
+
+        <section id="arquitectura">
+          <h2>2) Arquitectura propuesta</h2>
+          <pre><code>SocketsLab.sln
+ ├─ SocketsLab.Core/           # contratos (interfaces), DTOs, utilidades
+ ├─ SocketsLab.TcpServer/      # servidor TCP (host de consola)
+ ├─ SocketsLab.TcpClient/      # cliente TCP (librería + cli)
+ ├─ SocketsLab.UdpServer/      # servidor UDP (host de consola)
+ ├─ SocketsLab.Api/            # Minimal API (HTTP → usa TcpClient)
+ └─ SocketsLab.Tests/          # xUnit
+</code></pre>
+        </section>
+
+        <section id="preparacion">
+          <h2>3) Preparación del entorno</h2>
+          <pre><button class="copy" data-copy="#prep">Copiar</button><code id="prep">dotnet new sln -n SocketsLab
+cd SocketsLab
+
+# Núcleo
+dotnet new classlib -n SocketsLab.Core
+
+# Servidor TCP
+dotnet new console -n SocketsLab.TcpServer
+
+# Cliente TCP (librería) + CLI
+dotnet new classlib -n SocketsLab.TcpClient
+dotnet new console -n SocketsLab.TcpClient.Cli
+
+# Servidor UDP
+dotnet new console -n SocketsLab.UdpServer
+
+# Minimal API
+dotnet new web -n SocketsLab.Api
+
+# Tests
+dotnet new xunit -n SocketsLab.Tests
+
+# Referencias
+dotnet sln add **/*.csproj
+
+dotnet add SocketsLab.TcpServer/SocketsLab.TcpServer.csproj reference SocketsLab.Core/SocketsLab.Core.csproj
+
+dotnet add SocketsLab.TcpClient/SocketsLab.TcpClient.csproj reference SocketsLab.Core/SocketsLab.Core.csproj
+
+dotnet add SocketsLab.TcpClient.Cli/SocketsLab.TcpClient.Cli.csproj reference \
+  SocketsLab.TcpClient/SocketsLab.TcpClient.csproj \
+  SocketsLab.Core/SocketsLab.Core.csproj
+
+dotnet add SocketsLab.Api/SocketsLab.Api.csproj reference \
+  SocketsLab.TcpClient/SocketsLab.TcpClient.csproj \
+  SocketsLab.Core/SocketsLab.Core.csproj
+
+dotnet add SocketsLab.Tests/SocketsLab.Tests.csproj reference \
+  SocketsLab.TcpServer/SocketsLab.TcpServer.csproj \
+  SocketsLab.TcpClient/SocketsLab.TcpClient.csproj \
+  SocketsLab.Core/SocketsLab.Core.csproj
+</code></pre>
+        </section>
+
+        <section id="solucion">
+          <h2>4) Solución TCP con capas</h2>
+          <h3>4.1 Core (contratos y DTOs)</h3>
+          <pre><button class="copy" data-copy="#core">Copiar</button><code id="core">// SocketsLab.Core/Contracts.cs
+namespace SocketsLab.Core;
+
+public interface ITcpEchoServer
+{
+    Task RunAsync(int port, CancellationToken ct = default);
+}
+
+public interface ITcpEchoClient
+{
+    Task&lt;string&gt; EchoAsync(string host, int port, string message, CancellationToken ct = default);
+}
+</code></pre>
+
+          <h3>4.2 Cliente TCP (librería)</h3>
+          <pre><button class="copy" data-copy="#tcp-client-lib">Copiar</button><code id="tcp-client-lib">// SocketsLab.TcpClient/TcpEchoClient.cs
+using System.Net.Sockets;
+using System.Text;
+using SocketsLab.Core;
+
+namespace SocketsLab.TcpClient;
+
+public class TcpEchoClient : ITcpEchoClient
+{
+    public async Task&lt;string&gt; EchoAsync(string host, int port, string message, CancellationToken ct = default)
+    {
+        using var client = new System.Net.Sockets.TcpClient();
+        await client.ConnectAsync(host, port, ct);
+        using var stream = client.GetStream();
+        var bytes = Encoding.UTF8.GetBytes(message);
+        await stream.WriteAsync(bytes, ct);
+        var buffer = new byte[1024];
+        var n = await stream.ReadAsync(buffer, ct);
+        return Encoding.UTF8.GetString(buffer, 0, n);
+    }
+}
+</code></pre>
+
+          <h3>4.3 CLI del cliente</h3>
+          <pre><button class="copy" data-copy="#tcp-client-cli">Copiar</button><code id="tcp-client-cli">// SocketsLab.TcpClient.Cli/Program.cs
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using SocketsLab.Core;
+using SocketsLab.TcpClient;
+
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices(s =&gt; {
+        s.AddSingleton&lt;ITcpEchoClient, TcpEchoClient&gt;();
+    }).Build();
+
+var client = host.Services.GetRequiredService&lt;ITcpEchoClient&gt;();
+
+var targetHost = args.ElementAtOrDefault(0) ?? "127.0.0.1";
+var port = int.TryParse(args.ElementAtOrDefault(1), out var p) ? p : 5000;
+var msg = args.ElementAtOrDefault(2) ?? "hola";
+
+var echo = await client.EchoAsync(targetHost, port, msg);
+Console.WriteLine($"[TCP-CLI] Eco: {echo}");
+</code></pre>
+
+          <h3>4.4 Servidor TCP con DI y concurrencia</h3>
+          <pre><button class="copy" data-copy="#tcp-server">Copiar</button><code id="tcp-server">// SocketsLab.TcpServer/Program.cs
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using SocketsLab.Core;
+
+var builder = Host.CreateApplicationBuilder(args);
+builder.Services.AddSingleton&lt;ITcpEchoServer, TcpEchoServer&gt;();
+var app = builder.Build();
+
+var port = int.TryParse(args.ElementAtOrDefault(0), out var p) ? p : 5000;
+var server = app.Services.GetRequiredService&lt;ITcpEchoServer&gt;();
+
+Console.CancelKeyPress += (s,e) =&gt; { e.Cancel = true; cts.Cancel(); };
+var cts = new CancellationTokenSource();
+
+await server.RunAsync(port, cts.Token);
+
+public class TcpEchoServer : ITcpEchoServer
+{
+    private readonly ILogger&lt;TcpEchoServer&gt; _log;
+    public TcpEchoServer(ILogger&lt;TcpEchoServer&gt; log) =&gt; _log = log;
+
+    public async Task RunAsync(int port, CancellationToken ct = default)
+    {
+        var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, port);
+        listener.Start();
+        _log.LogInformation("[TCP] Escuchando en {Port}", port);
+        var tasks = new List&lt;Task&gt;();
+
+        try
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                var client = await listener.AcceptTcpClientAsync(ct);
+                tasks.Add(HandleClientAsync(client, ct));
+            }
+        }
+        catch (OperationCanceledException) { }
+        finally
+        {
+            listener.Stop();
+            await Task.WhenAll(tasks);
+            _log.LogInformation("[TCP] Servidor detenido");
+        }
+    }
+
+    private async Task HandleClientAsync(System.Net.Sockets.TcpClient client, CancellationToken ct)
+    {
+        var remote = client.Client.RemoteEndPoint;
+        _log.LogInformation("Conexión de {Remote}", remote);
+        using (client)
+        using (var stream = client.GetStream())
+        {
+            var buffer = new byte[1024];
+            try
+            {
+                while (!ct.IsCancellationRequested)
+                {
+                    var n = await stream.ReadAsync(buffer, ct);
+                    if (n == 0) break;
+                    await stream.WriteAsync(buffer.AsMemory(0, n), ct); // eco
+                }
+            }
+            catch (Exception ex) when (ex is OperationCanceledException || ex is System.IO.IOException)
+            {
+                _log.LogWarning("Cliente {Remote} finalizó: {Msg}", remote, ex.Message);
+            }
+        }
+        _log.LogInformation("Cliente {Remote} desconectado", remote);
+    }
+}
+</code></pre>
+
+          <details><summary>Ejecutar servidor y cliente</summary>
+            <pre><code># Terminal A (servidor)
+dotnet run --project SocketsLab.TcpServer -- 5000
+
+# Terminal B (cliente CLI)
+dotnet run --project SocketsLab.TcpClient.Cli -- 127.0.0.1 5000 "hola mundo"
+</code></pre>
+          </details>
+        </section>
+
+        <section id="udp">
+          <h2>5) Servicio UDP (eco)</h2>
+          <pre><button class="copy" data-copy="#udp-server">Copiar</button><code id="udp-server">// SocketsLab.UdpServer/Program.cs
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
+var port = int.TryParse(args.ElementAtOrDefault(0), out var p) ? p : 5001;
+using var udp = new UdpClient(port);
+Console.WriteLine($"[UDP] Escuchando en 0.0.0.0:{port}");
+
+while (true)
+{
+    var result = await udp.ReceiveAsync();
+    var text = Encoding.UTF8.GetString(result.Buffer);
+    Console.WriteLine($"[UDP] {result.RemoteEndPoint} -> {text}");
+    await udp.SendAsync(result.Buffer, result.Buffer.Length, result.RemoteEndPoint);
+}
+</code></pre>
+        </section>
+
+        <section id="rest">
+          <h2>6) Puente HTTP → TCP (Minimal API)</h2>
+          <p>Expondremos <code>POST /echo</code> que recibe <code>{ message }</code> y, usando <code>ITcpEchoClient</code>, devuelve el eco desde el servidor TCP.</p>
+          <pre><button class="copy" data-copy="#api-prog">Copiar</button><code id="api-prog">// SocketsLab.Api/Program.cs
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using SocketsLab.Core;
+using SocketsLab.TcpClient;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton&lt;ITcpEchoClient, TcpEchoClient&gt;();
+
+var app = builder.Build();
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.MapPost("/echo", async (ITcpEchoClient client, Request req, IConfiguration cfg) =>
+{
+    var host = cfg["Echo:Host"] ?? "127.0.0.1";
+    var port = int.TryParse(cfg["Echo:Port"], out var p) ? p : 5000;
+    var echoed = await client.EchoAsync(host, port, req.Message);
+    return Results.Ok(new { echoed });
+});
+
+app.Run();
+
+record Request(string Message);
+</code></pre>
+          <h3>6.1 Configuración</h3>
+          <pre><button class="copy" data-copy="#api-settings">Copiar</button><code id="api-settings">// SocketsLab.Api/appsettings.json
+{
+  "Echo": {
+    "Host": "127.0.0.1",
+    "Port": 5000
+  },
+  "Logging": {
+    "LogLevel": { "Default": "Information" }
+  }
+}
+</code></pre>
+          <details><summary>Probar API</summary>
+            <pre><code># Terminal 1 (TCP server)
+dotnet run --project SocketsLab.TcpServer -- 5000
+
+# Terminal 2 (API)
+dotnet run --project SocketsLab.Api
+
+# Terminal 3 (curl)
+curl -s -X POST http://localhost:5000/echo -H "Content-Type: application/json" -d '{"message":"hola desde http"}'
+</code></pre>
+          </details>
+        </section>
+
+        <section id="testing">
+          <h2>7) Pruebas automatizadas (xUnit)</h2>
+          <pre><button class="copy" data-copy="#tests">Copiar</button><code id="tests">// SocketsLab.Tests/EchoClientTests.cs
+using SocketsLab.TcpClient;
+using Xunit;
+
+public class EchoClientTests
+{
+    [Fact]
+    public async Task Echo_ReturnsSameMessage()
+    {
+        var client = new TcpEchoClient();
+        // Asegúrate de tener el servidor corriendo en 5000
+        var msg = "prueba";
+        var echoed = await client.EchoAsync("127.0.0.1", 5000, msg);
+        Assert.Equal(msg, echoed);
+    }
+}
+</code></pre>
+          <details><summary>Ejecutar tests</summary>
+            <pre><code>dotnet test
+</code></pre>
+          </details>
+        </section>
+
+        <section id="validacion">
+          <h2>8) Validación del aprendizaje (checklist)</h2>
+          <div class="task"><input type="checkbox"/> <label>Compilé y ejecuté el servidor TCP con DI, logging y concurrencia.</label></div>
+          <div class="task"><input type="checkbox"/> <label>Usé el CLI para invocar el eco y obtuve la respuesta correcta.</label></div>
+          <div class="task"><input type="checkbox"/> <label>Implementé y probé el servidor UDP.</label></div>
+          <div class="task"><input type="checkbox"/> <label>Probé el endpoint HTTP <code>/echo</code> que usa el cliente TCP.</label></div>
+          <div class="task"><input type="checkbox"/> <label>Corrí pruebas automatizadas exitosamente.</label></div>
+
+          <h3>Preguntas guía</h3>
+          <ol>
+            <li>¿Qué ventajas aporta la inyección de dependencias en el diseño del servidor/cliente?</li>
+            <li>¿Cómo maneja tu solución múltiples clientes concurrentes? ¿Qué riesgos quedan?</li>
+            <li>¿Por qué es útil un puente HTTP hacia sockets en escenarios reales?</li>
+            <li>¿Qué métricas de logging incorporarías en producción?</li>
+          </ol>
+        </section>
+
+        <section id="troubleshooting">
+          <h2>9) Troubleshooting</h2>
+          <details open>
+            <summary>Puertos ocupados</summary>
+            <div class="tip warn">Cambia a <code>5050</code> (TCP) y <code>5051</code> (UDP) en todos los proyectos correspondientes.</div>
+          </details>
+          <details>
+            <summary>API no conecta al servidor TCP</summary>
+            <ul>
+              <li>Verifica <code>appsettings.json</code> con la IP/puerto correctos.</li>
+              <li>Levanta primero el servidor TCP y luego la API.</li>
+            </ul>
+          </details>
+          <details>
+            <summary>Codificación de texto</summary>
+            <div class="tip">Asegura <code>UTF-8</code> en cliente y servidor para caracteres no ASCII.</div>
+          </details>
+        </section>
+
+        <section id="entregables">
+          <h2>10) Entregables y rúbrica</h2>
+          <p><strong>Entrega:</strong> comprimido <code>Fase2_Sockets_Nombre.zip</code> con:</p>
+          <ul>
+            <li>Solución completa <code>SocketsLab.sln</code> y proyectos.</li>
+            <li>Capturas ejecutando: servidor TCP, CLI, servidor UDP y API.</li>
+            <li><code>reporte.pdf</code> con respuestas y decisiones de diseño.</li>
+          </ul>
+          <table>
+            <thead>
+              <tr><th>Criterio</th><th>Excelente (100%)</th><th>Adecuado (85%)</th><th>Básico (70%)</th><th>Insuficiente (&lt;70%)</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Estructura y DI</td>
+                <td>Capas claras, DI correcta, configuración limpia.</td>
+                <td>Capas con pequeños detalles.</td>
+                <td>Acoplamiento alto o DI incompleta.</td>
+                <td>Monolítico, difícil de mantener.</td>
+              </tr>
+              <tr>
+                <td>Concurrencia y estabilidad</td>
+                <td>Maneja múltiples clientes; cancelación y errores controlados.</td>
+                <td>Funciona con clientes concurrentes simples.</td>
+                <td>Problemas bajo carga baja.</td>
+                <td>Se cae con un solo cliente.</td>
+              </tr>
+              <tr>
+                <td>Puente HTTP</td>
+                <td>/echo funcional, integra TcpClient, Swagger operativo.</td>
+                <td>Funciona con limitaciones.</td>
+                <td>Integración parcial o frágil.</td>
+                <td>No funcional.</td>
+              </tr>
+              <tr>
+                <td>Pruebas</td>
+                <td>xUnit cubre casos básicos y borde.</td>
+                <td>Pruebas mínimas.</td>
+                <td>Pocas o inestables.</td>
+                <td>Sin pruebas.</td>
+              </tr>
+              <tr>
+                <td>Reporte</td>
+                <td>Argumenta decisiones y evidencia completa.</td>
+                <td>Argumento suficiente.</td>
+                <td>Superficial.</td>
+                <td>Insuficiente.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="extensiones">
+          <h2>11) Extensiones (opcional)</h2>
+          <ul>
+            <li><strong>Protocol framing:</strong> añade longitud-prefijo (4 bytes) o JSON con delimitadores para mensajes.</li>
+            <li><strong>TLS:</strong> agrega cifrado con <code>SslStream</code> en TCP.</li>
+            <li><strong>Observabilidad:</strong> métricas con <code>EventCounters</code> o <code>OpenTelemetry</code>.</li>
+            <li><strong>Docker:</strong> contenedores para API y servidor TCP.</li>
+          </ul>
+        </section>
+
+        <footer class="small">Programación del lado del Servidor © 2025 · Guía didáctica Fase 2 (C#/.NET 8). Licencia MIT.</footer>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const btn = document.getElementById('theme');
+    const current = localStorage.getItem('phase2-theme')||'dark';
+    if(current==='light') document.documentElement.setAttribute('data-theme','light');
+    btn.addEventListener('click',()=>{
+      const isLight = document.documentElement.getAttribute('data-theme')==='light';
+      document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      localStorage.setItem('phase2-theme', isLight ? 'dark' : 'light');
+    });
+
+    // Copiar código
+    document.querySelectorAll('.copy').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        const sel = b.getAttribute('data-copy');
+        const code = document.querySelector(sel)?.innerText || '';
+        try{ await navigator.clipboard.writeText(code); b.textContent='Copiado ✓'; setTimeout(()=>b.textContent='Copiar', 1200);}catch(e){ b.textContent='¡Ups!'; setTimeout(()=>b.textContent='Copiar', 1200);}    
+      })
+    });
+  </script>
+</body>
+</html>

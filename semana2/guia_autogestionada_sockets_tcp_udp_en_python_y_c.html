@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guía Autogestionada · Sockets TCP/UDP en Python y C# (.NET 8)</title>
+  <style>
+    :root{
+      --bg:#0b0e11; --muted:#0f141a; --fg:#e6edf3; --fg-2:#b1bac4; --acc:#4cc2ff; --ok:#66d9a3; --warn:#ffd166; --err:#ff6b6b; --card:#11161c;
+      --code-bg:#0a0f14; --border:#1c232b; --shadow:0 10px 30px rgba(0,0,0,.35);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --radius: 14px; --radius-sm: 10px; --maxw: 1080px;
+    }
+    [data-theme="light"]{
+      --bg:#f7f9fc; --muted:#ffffff; --fg:#0e141b; --fg-2:#475467; --acc:#0077ff; --ok:#1a7f5a; --warn:#b7791f; --err:#c53030; --card:#ffffff;
+      --code-bg:#0f172a; --border:#e6eaf0; --shadow:0 12px 28px rgba(10,22,70,.08);
+    }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);line-height:1.6}
+    .wrap{max-width:var(--maxw);margin:auto;padding:24px}
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--bg) 0%, color-mix(in oklab, var(--bg) 90%, transparent) 100%);backdrop-filter: blur(6px)}
+    .topbar{display:flex;gap:14px;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),#8b5cf6);box-shadow:var(--shadow)}
+    h1{font-size:clamp(22px,2.6vw,32px);margin:0}
+    .actions{display:flex;gap:8px;align-items:center}
+    button, .chip{border:1px solid var(--border);background:var(--muted);color:var(--fg);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600}
+    button:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+    .grid{display:grid;grid-template-columns:280px 1fr;gap:24px;margin-top:24px}
+    nav{position:sticky;top:76px;align-self:start;background:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+    nav h3{margin:4px 0 10px 0;font-size:14px;color:var(--fg-2);letter-spacing:.08em;text-transform:uppercase}
+    nav a{display:block;padding:8px 10px;border-radius:10px;color:var(--fg-2);text-decoration:none;border:1px solid transparent}
+    nav a:hover{color:var(--fg);border-color:var(--border);background:color-mix(in oklab, var(--muted) 90%, var(--acc) 10%)}
+    section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;margin-bottom:18px;box-shadow:var(--shadow)}
+    section h2{margin-top:0;font-size:clamp(20px,2.2vw,26px)}
+    .kpi{display:flex;gap:10px;flex-wrap:wrap;margin:.2rem 0 1rem}
+    .kpi .chip{background:transparent}
+    .tip{border-left:4px solid var(--acc);background:color-mix(in oklab, var(--card) 85%, var(--acc) 10%);padding:12px;border-radius:10px;margin:10px 0}
+    .warn{border-left:4px solid var(--warn);background:color-mix(in oklab, var(--card) 85%, var(--warn) 10%)}
+    .ok{border-left:4px solid var(--ok)}
+    .err{border-left:4px solid var(--err)}
+    code, pre{font-family:var(--mono)}
+    pre{position:relative;background:var(--code-bg);color:#e5e7eb;padding:16px;border-radius:var(--radius-sm);overflow:auto;border:1px solid var(--border)}
+    .copy{position:absolute;top:8px;right:8px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--border);cursor:pointer}
+    .task{display:grid;grid-template-columns:24px 1fr;gap:12px;margin:8px 0;align-items:start}
+    .task input{width:18px;height:18px;margin-top:4px}
+    .two{display:grid;gap:16px}
+    @media (min-width: 880px){.two{grid-template-columns:1fr 1fr}}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border:1px solid var(--border);padding:10px;border-radius:6px}
+    th{background:color-mix(in oklab, var(--card) 85%, var(--acc) 12%);text-align:left}
+    .small{font-size:.95rem;color:var(--fg-2)}
+    footer{opacity:.75;padding:30px 0}
+    details{border:1px dashed var(--border);padding:10px;border-radius:12px}
+    summary{cursor:pointer;font-weight:700}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Guía Autogestionada · Sockets TCP/UDP en Python y C# (.NET 8)</h1>
+          <div class="small">Aprenderás conceptos fundamentales de <strong>sockets</strong> (cliente/servidor, puertos, TCP vs UDP) con un mismo mini‑proyecto implementado en dos lenguajes.</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="theme">🌗 Modo claro/oscuro</button>
+        <button onclick="window.print()">🖨️ Imprimir / PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <nav>
+        <h3>Contenido</h3>
+        <a href="#objetivos">1. Objetivos y resultados</a>
+        <a href="#mapa">2. Mapa de la sesión</a>
+        <a href="#conceptos">3. Conceptos clave</a>
+        <a href="#python">4. Práctica en Python</a>
+        <a href="#csharp">5. Práctica en C# / .NET 8</a>
+        <a href="#comparativas">6. Experimentos comparativos</a>
+        <a href="#validacion">7. Validación de aprendizaje</a>
+        <a href="#troubleshooting">8. Solución de problemas</a>
+        <a href="#entregables">9. Entregables y rúbrica</a>
+        <a href="#extensiones">10. Extensiones</a>
+      </nav>
+
+      <div>
+        <section id="objetivos">
+          <h2>1) Objetivos y resultados de aprendizaje</h2>
+          <div class="kpi">
+            <span class="chip">Duración sugerida: 90–120 min</span>
+            <span class="chip">Nivel: Inicial</span>
+            <span class="chip">Modalidad: Autogestión</span>
+          </div>
+          <ul>
+            <li>Comprender qué es un <strong>socket</strong>, cómo se <em>conecta</em> y por qué requiere un <strong>puerto</strong>.</li>
+            <li>Diferenciar <strong>TCP</strong> (orientado a conexión) y <strong>UDP</strong> (no orientado a conexión).</li>
+            <li>Ejecutar un <strong>eco cliente/servidor</strong> en <strong>Python</strong> y replicarlo en <strong>C# (.NET 8)</strong>.</li>
+            <li>Probar local y en LAN; verificar firewall; documentar evidencias.</li>
+          </ul>
+          <div class="tip ok"><strong>Resultado esperado:</strong> tener 4 binarios/scripts funcionales (TCP servidor/cliente y UDP servidor/cliente) en ambos lenguajes, junto con capturas y respuestas a las preguntas guía.</div>
+        </section>
+
+        <section id="mapa">
+          <h2>2) Mapa de la sesión (ruta rápida)</h2>
+          <ol>
+            <li><strong>Python</strong>: TCP (servidor → cliente) y luego UDP (servidor → cliente).</li>
+            <li><strong>C#/.NET</strong>: TCP (servidor → cliente) y luego UDP (servidor → cliente).</li>
+            <li>Comparar comportamientos (reintentos, bloqueo, ausencia de conexión en UDP, tamaño de buffer).</li>
+            <li>Responder preguntas de reflexión y preparar entregables.</li>
+          </ol>
+          <div class="tip">Puedes realizar las fases en orden o alternarlas. Si te atoras, salta a <a href="#troubleshooting">Solución de problemas</a>.</div>
+        </section>
+
+        <section id="conceptos">
+          <h2>3) Conceptos clave</h2>
+          <ul>
+            <li><strong>Socket:</strong> punto de comunicación entre procesos mediante red (IP:PUERTO).</li>
+            <li><strong>Cliente/Servidor:</strong> el servidor <em>escucha</em> en un puerto; el cliente <em>conecta</em> a ese puerto.</li>
+            <li><strong>TCP:</strong> conexión confiable, ordenada, orientada a flujo; asegura entrega con control de congestión.</li>
+            <li><strong>UDP:</strong> datagramas sin conexión; menor latencia, no garantiza entrega/orden.</li>
+            <li><strong>Buffer:</strong> tamaño de lectura/escritura (p. ej. 1024 bytes) que afecta cómo llegan mensajes grandes.</li>
+          </ul>
+        </section>
+
+        <section id="python">
+          <h2>4) Práctica en Python (3.10+)</h2>
+          <p><strong>Puertos usados:</strong> 5000/TCP y 5001/UDP</p>
+
+          <h3>4.1 TCP — Servidor (eco)</h3>
+          <pre><button class="copy" data-copy="#py-tcp-server">Copiar</button><code id="py-tcp-server"># tcp_server.py
+import socket
+
+HOST = "0.0.0.0"
+PORT = 5000
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((HOST, PORT))
+    s.listen()
+    print(f"[TCP] Servidor escuchando en {HOST}:{PORT}")
+    while True:
+        conn, addr = s.accept()
+        with conn:
+            print(f"[TCP] Conexión de {addr}")
+            while True:
+                data = conn.recv(1024)
+                if not data:
+                    print(f"[TCP] Cliente {addr} cerró la conexión")
+                    break
+                print(f"[TCP] Recibido: {data!r}")
+                conn.sendall(data)  # eco
+</code></pre>
+
+          <h3>4.2 TCP — Cliente (eco)</h3>
+          <pre><button class="copy" data-copy="#py-tcp-client">Copiar</button><code id="py-tcp-client"># tcp_client.py
+import socket
+
+HOST = "127.0.0.1"
+PORT = 5000
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((HOST, PORT))
+    print(f"[TCP] Conectado a {HOST}:{PORT}")
+    for msg in [b"hola", b"mundo", b"adios"]:
+        s.sendall(msg)
+        data = s.recv(1024)
+        print(f"[TCP] Eco: {data!r}")
+</code></pre>
+
+          <details><summary>Cómo ejecutar</summary>
+            <pre><code># Terminal 1
+python tcp_server.py
+# Terminal 2
+python tcp_client.py
+</code></pre>
+          </details>
+
+          <h3>4.3 UDP — Servidor (eco)</h3>
+          <pre><button class="copy" data-copy="#py-udp-server">Copiar</button><code id="py-udp-server"># udp_server.py
+import socket
+
+HOST = "0.0.0.0"
+PORT = 5001
+
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+    s.bind((HOST, PORT))
+    print(f"[UDP] Servidor escuchando en {HOST}:{PORT}")
+    while True:
+        data, addr = s.recvfrom(1024)
+        print(f"[UDP] De {addr} -> {data!r}")
+        s.sendto(data, addr)  # eco
+</code></pre>
+
+          <h3>4.4 UDP — Cliente (eco)</h3>
+          <pre><button class="copy" data-copy="#py-udp-client">Copiar</button><code id="py-udp-client"># udp_client.py
+import socket
+
+HOST = "127.0.0.1"
+PORT = 5001
+
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+    for msg in [b"uno", b"dos", b"tres"]:
+        s.sendto(msg, (HOST, PORT))
+        data, _ = s.recvfrom(1024)
+        print(f"[UDP] Eco: {data!r}")
+</code></pre>
+
+          <details><summary>Cómo ejecutar</summary>
+            <pre><code># Terminal 1
+python udp_server.py
+# Terminal 2
+python udp_client.py
+</code></pre>
+          </details>
+
+          <div class="tip ok"><strong>Verificación rápida:</strong> si el cliente imprime el mismo texto que envías, el eco funciona. Cambia los mensajes y repite.</div>
+        </section>
+
+        <section id="csharp">
+          <h2>5) Práctica en C# / .NET 8</h2>
+          <p><strong>Requisitos:</strong> SDK .NET 8 instalado. Puertos 5000/TCP y 5001/UDP.</p>
+
+          <h3>5.1 TCP — Servidor (eco)</h3>
+          <pre><button class="copy" data-copy="#cs-tcp-server-cmd">Copiar</button><code id="cs-tcp-server-cmd">dotnet new console -n TcpEchoServer
+cd TcpEchoServer
+</code></pre>
+          <pre><button class="copy" data-copy="#cs-tcp-server">Copiar Program.cs</button><code id="cs-tcp-server">// Program.cs (net8.0)
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
+var host = IPAddress.Any;
+var port = 5000;
+var listener = new TcpListener(host, port);
+listener.Start();
+Console.WriteLine($"[TCP] Servidor escuchando en {host}:{port}");
+
+while (true)
+{
+    var client = await listener.AcceptTcpClientAsync();
+    _ = HandleClientAsync(client);
+}
+
+static async Task HandleClientAsync(TcpClient client)
+{
+    var remote = client.Client.RemoteEndPoint;
+    Console.WriteLine($"[TCP] Conexión de {remote}");
+    using (client)
+    using (var stream = client.GetStream())
+    {
+        var buffer = new byte[1024];
+        int n;
+        while ((n = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length))) > 0)
+        {
+            var data = buffer.AsSpan(0, n);
+            Console.WriteLine($"[TCP] Recibido {n} bytes: {Encoding.UTF8.GetString(data)}");
+            await stream.WriteAsync(data); // eco
+        }
+    }
+    Console.WriteLine($"[TCP] Cliente {remote} desconectado");
+}
+</code></pre>
+          <pre><code>dotnet run
+</code></pre>
+
+          <h3>5.2 TCP — Cliente (eco)</h3>
+          <pre><button class="copy" data-copy="#cs-tcp-client-cmd">Copiar</button><code id="cs-tcp-client-cmd">cd ..
+dotnet new console -n TcpEchoClient
+cd TcpEchoClient
+</code></pre>
+          <pre><button class="copy" data-copy="#cs-tcp-client">Copiar Program.cs</button><code id="cs-tcp-client">// Program.cs
+using System.Net.Sockets;
+using System.Text;
+
+var host = "127.0.0.1";
+var port = 5000;
+
+using var client = new TcpClient();
+await client.ConnectAsync(host, port);
+Console.WriteLine($"[TCP] Conectado a {host}:{port}");
+
+using var stream = client.GetStream();
+foreach (var msg in new[] { "hola", "mundo", "adios" })
+{
+    var bytes = Encoding.UTF8.GetBytes(msg);
+    await stream.WriteAsync(bytes);
+    var buffer = new byte[1024];
+    var n = await stream.ReadAsync(buffer);
+    Console.WriteLine($"[TCP] Eco: {Encoding.UTF8.GetString(buffer, 0, n)}");
+}
+</code></pre>
+          <pre><code>dotnet run
+</code></pre>
+
+          <h3>5.3 UDP — Servidor (eco)</h3>
+          <pre><button class="copy" data-copy="#cs-udp-server-cmd">Copiar</button><code id="cs-udp-server-cmd">cd ..
+dotnet new console -n UdpEchoServer
+cd UdpEchoServer
+</code></pre>
+          <pre><button class="copy" data-copy="#cs-udp-server">Copiar Program.cs</button><code id="cs-udp-server">// Program.cs
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
+var port = 5001;
+using var udp = new UdpClient(port);
+Console.WriteLine($"[UDP] Servidor escuchando en 0.0.0.0:{port}");
+
+while (true)
+{
+    var result = await udp.ReceiveAsync();
+    var text = Encoding.UTF8.GetString(result.Buffer);
+    Console.WriteLine($"[UDP] De {result.RemoteEndPoint} -> {text}");
+    await udp.SendAsync(result.Buffer, result.Buffer.Length, result.RemoteEndPoint); // eco
+}
+</code></pre>
+          <pre><code>dotnet run
+</code></pre>
+
+          <h3>5.4 UDP — Cliente (eco)</h3>
+          <pre><button class="copy" data-copy="#cs-udp-client-cmd">Copiar</button><code id="cs-udp-client-cmd">cd ..
+dotnet new console -n UdpEchoClient
+cd UdpEchoClient
+</code></pre>
+          <pre><button class="copy" data-copy="#cs-udp-client">Copiar Program.cs</button><code id="cs-udp-client">// Program.cs
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
+var host = "127.0.0.1";
+var port = 5001;
+
+using var udp = new UdpClient();
+var server = new IPEndPoint(IPAddress.Parse(host), port);
+
+foreach (var msg in new[] { "uno", "dos", "tres" })
+{
+    var bytes = Encoding.UTF8.GetBytes(msg);
+    await udp.SendAsync(bytes, bytes.Length, server);
+    var result = await udp.ReceiveAsync();
+    Console.WriteLine($"[UDP] Eco: {Encoding.UTF8.GetString(result.Buffer)}");
+}
+</code></pre>
+          <pre><code>dotnet run
+</code></pre>
+
+          <div class="tip ok"><strong>Verificación rápida:</strong> Si las consolas cliente imprimen el mismo texto que envían, el eco está correcto.</div>
+        </section>
+
+        <section id="comparativas">
+          <h2>6) Experimentos comparativos (TCP vs UDP)</h2>
+          <div class="two">
+            <div class="tip">
+              <strong>A. Conexión caída (TCP)</strong>
+              <ul>
+                <li>Con el cliente conectado, detén el servidor TCP.</li>
+                <li>Observa errores/bloqueos; anota el mensaje mostrado.</li>
+              </ul>
+            </div>
+            <div class="tip">
+              <strong>B. Sin servidor (UDP)</strong>
+              <ul>
+                <li>Con el servidor UDP apagado, ejecuta el cliente UDP.</li>
+                <li>Observa: no hay conexión previa; no siempre hay error inmediato.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="two">
+            <div class="tip">
+              <strong>C. Tamaño de buffer</strong>
+              <ul>
+                <li>Cambia <code>1024</code> por <code>8</code> bytes en servidor/cliente.</li>
+                <li>Envía un mensaje largo y observa lecturas en varias partes.</li>
+              </ul>
+            </div>
+            <div class="tip">
+              <strong>D. Red local (LAN)</strong>
+              <ul>
+                <li>Ejecuta servidor en una PC y cliente en otra (misma red).</li>
+                <li>Usa la IP del servidor (ej. <code>192.168.x.y</code>).</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="validacion">
+          <h2>7) Validación de aprendizaje (checklist + preguntas)</h2>
+          <div class="task"><input type="checkbox"/> <label>Explique con sus palabras qué es un socket y por qué requiere un puerto.</label></div>
+          <div class="task"><input type="checkbox"/> <label>Demostré el eco TCP y anoté la salida en consola.</label></div>
+          <div class="task"><input type="checkbox"/> <label>Demostré el eco UDP y anoté la salida en consola.</label></div>
+          <div class="task"><input type="checkbox"/> <label>Comparé comportamientos (caída de servidor TCP vs cliente UDP sin servidor).</label></div>
+          <div class="task"><input type="checkbox"/> <label>Probé mensajes largos y analicé el efecto del buffer.</label></div>
+          <div class="task"><input type="checkbox"/> <label>Probé en LAN (si es posible) y documenté la IP usada.</label></div>
+
+          <h3>Preguntas guía (responde en tu reporte)</h3>
+          <ol>
+            <li>¿En qué casos elegirías TCP y en cuáles UDP? Da al menos 2 ejemplos reales.</li>
+            <li>¿Qué observaste cuando cambiaste el tamaño del buffer?</li>
+            <li>¿Qué error aparece al desconectar el servidor TCP? ¿Por qué sucede?</li>
+            <li>¿Por qué el cliente UDP puede "enviar" aun cuando el servidor no esté activo?</li>
+          </ol>
+        </section>
+
+        <section id="troubleshooting">
+          <h2>8) Solución de problemas frecuentes</h2>
+          <details open>
+            <summary>Firewall / puertos</summary>
+            <ul>
+              <li><strong>Linux (ufw)</strong>:
+                <pre><code>sudo ufw allow 5000/tcp
+sudo ufw allow 5001/udp
+sudo ufw status
+</code></pre>
+              </li>
+              <li><strong>Windows</strong>: abre "Firewall de Windows con seguridad avanzada" → Reglas de entrada → Nueva regla → Puerto → TCP 5000, UDP 5001.
+              </li>
+            </ul>
+          </details>
+          <details>
+            <summary>Puerto ya en uso</summary>
+            <div class="tip warn">Cambia a puertos libres (por ejemplo 5050 y 5051) en ambos programas cliente/servidor.</div>
+          </details>
+          <details>
+            <summary>Cliente no conecta (TCP)</summary>
+            <ul>
+              <li>Verifica que el servidor esté <em>escuchando</em> y en la IP/puerto correctos.</li>
+              <li>Si estás en LAN, usa la IP del servidor (no 127.0.0.1).</li>
+            </ul>
+          </details>
+          <details>
+            <summary>Texto con caracteres extraños</summary>
+            <div class="tip">Asegura <code>UTF-8</code> en ambos lados. En C#, usamos <code>Encoding.UTF8</code>.</div>
+          </details>
+        </section>
+
+        <section id="entregables">
+          <h2>9) Entregables y rúbrica</h2>
+          <p><strong>Entrega:</strong> comprimido <code>PracticaSockets_Nombre.zip</code> con:</p>
+          <ul>
+            <li>Carpeta <code>python/</code> con los 4 scripts.</li>
+            <li>Carpeta <code>dotnet/</code> con los 4 proyectos (o 1 con variantes).</li>
+            <li><code>reporte.pdf</code> (evidencias de ejecución y respuestas a las preguntas guía).</li>
+          </ul>
+
+          <table>
+            <thead>
+              <tr><th>Criterio</th><th>Excelente (100%)</th><th>Adecuado (85%)</th><th>Básico (70%)</th><th>Insuficiente (&lt;70%)</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Funcionamiento Python</td>
+                <td>TCP y UDP funcionan; evidencia clara.</td>
+                <td>Funciona 1 protocolo y evidencia parcial.</td>
+                <td>Funciona solo cliente o servidor.</td>
+                <td>No compila/ejecuta o sin evidencia.</td>
+              </tr>
+              <tr>
+                <td>Funcionamiento C#/.NET</td>
+                <td>TCP y UDP funcionan; evidencia clara.</td>
+                <td>Funciona 1 protocolo y evidencia parcial.</td>
+                <td>Funciona solo cliente o servidor.</td>
+                <td>No compila/ejecuta o sin evidencia.</td>
+              </tr>
+              <tr>
+                <td>Comparativas y análisis</td>
+                <td>Responde con profundidad A–D con capturas.</td>
+                <td>Responde la mayoría con brevedad.</td>
+                <td>Respuestas superficiales y sin capturas.</td>
+                <td>No entrega análisis.</td>
+              </tr>
+              <tr>
+                <td>Calidad del reporte</td>
+                <td>Ordenado, claro, coherente, sin faltas.</td>
+                <td>Pequeños errores de forma.</td>
+                <td>Desorden o faltas recurrentes.</td>
+                <td>Incomprensible.</td>
+              </tr>
+              <tr>
+                <td>Autonomía y resolución</td>
+                <td>Usa la guía, investiga adicionalmente.</td>
+                <td>Resuelve con mínimos apoyos.</td>
+                <td>Dependencia de indicaciones externas.</td>
+                <td>No logra resolver.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="extensiones">
+          <h2>10) Extensiones (opcional)</h2>
+          <ul>
+            <li><strong>Concurrencia:</strong> Python con <code>threading</code>/<code>asyncio</code>; C# ya usa <code>async/await</code>. Atiende múltiples clientes.</li>
+            <li><strong>Formato de mensajes:</strong> añade prefijo de longitud o JSON para delimitar mensajes.</li>
+            <li><strong>Persistencia:</strong> registra cada eco en archivo/BD con marca de tiempo.</li>
+            <li><strong>GUI o web:</strong> expón el eco TCP como endpoint HTTP (ASP.NET minimal API) o usa <code>socketserver</code> en Python.</li>
+          </ul>
+        </section>
+
+        <footer class="small">Programación del lado del Servidor © 2025 · Guía didáctica Fase 1 Práctica de Sockets. Licencia MIT.</footer>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const btn = document.getElementById('theme');
+    const current = localStorage.getItem('theme')||'dark';
+    if(current==='light') document.documentElement.setAttribute('data-theme','light');
+    btn.addEventListener('click',()=>{
+      const isLight = document.documentElement.getAttribute('data-theme')==='light';
+      document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      localStorage.setItem('theme', isLight ? 'dark' : 'light');
+    });
+
+    // Copiar código
+    document.querySelectorAll('.copy').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        const sel = b.getAttribute('data-copy');
+        const code = document.querySelector(sel)?.innerText || '';
+        try{ await navigator.clipboard.writeText(code); b.textContent='Copiado ✓'; setTimeout(()=>b.textContent='Copiar', 1200);}catch(e){ b.textContent='¡Ups!'; setTimeout(()=>b.textContent='Copiar', 1200);}    
+      })
+    });
+  </script>
+</body>
+</html>

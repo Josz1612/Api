@@ -46,14 +46,14 @@ from pathlib import Path
 from web.templates import get_homepage_html, get_dashboard_html, get_catalog_html, get_admin_html, get_sales_html, get_login_html, get_jwt_demo_html
 
 # 🔐 JWT Authentication: Sistema de autenticación con tokens
-from semana8_jwt.endpoints import router as auth_router
-from semana8_jwt import middleware as jwt_middleware
+# from semana8_jwt.endpoints import router as auth_router
+# from semana8_jwt import middleware as jwt_middleware
 
 # ⚙️ Configuración: Carga settings desde .env
-from config import settings
+# from config import settings
 
 # 🔒 HTTPS: Middleware para redirección HTTP → HTTPS
-from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+# from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 # 🔢 IDENTIFICADOR DE INSTANCIA - Para balanceo de carga
 # Lee la variable de entorno INSTANCE_ID o usa "default"
@@ -101,12 +101,12 @@ app.add_middleware(
 # 🔒 CONFIGURACIÓN HTTPS - Redirección HTTP → HTTPS (solo en producción)
 # IMPORTANTE: Solo activar cuando el servidor está configurado para HTTPS
 # En desarrollo local con HTTP, esto causaría errores
-if settings.environment == "production":
-    app.add_middleware(HTTPSRedirectMiddleware)
-    print("✅ Middleware HTTPS Redirect activado (producción)")
+# if settings.environment == "production":
+#     app.add_middleware(HTTPSRedirectMiddleware)
+#     print("✅ Middleware HTTPS Redirect activado (producción)")
 
 # 🔐 REGISTRO DE ROUTERS JWT - Sistema de autenticación
-app.include_router(auth_router)
+# app.include_router(auth_router)
 
 # 📋 MODELOS PYDANTIC - Plantillas que definen cómo deben verse los datos
 

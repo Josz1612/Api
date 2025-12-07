@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fundamentos Teóricos · Sockets TCP/UDP - Contexto para Fase 1</title>
+  <style>
+    :root{
+      --bg:#0b0e11; --muted:#0f141a; --fg:#e6edf3; --fg-2:#b1bac4; --acc:#4cc2ff; --ok:#66d9a3; --warn:#ffd166; --err:#ff6b6b; --card:#11161c;
+      --code-bg:#0a0f14; --border:#1c232b; --shadow:0 10px 30px rgba(0,0,0,.35);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --radius: 14px; --radius-sm: 10px; --maxw: 1080px;
+    }
+    [data-theme="light"]{
+      --bg:#f7f9fc; --muted:#ffffff; --fg:#0e141b; --fg-2:#475467; --acc:#0077ff; --ok:#1a7f5a; --warn:#b7791f; --err:#c53030; --card:#ffffff;
+      --code-bg:#0f172a; --border:#e6eaf0; --shadow:0 12px 28px rgba(10,22,70,.08);
+    }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);line-height:1.6}
+    .wrap{max-width:var(--maxw);margin:auto;padding:24px}
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--bg) 0%, color-mix(in oklab, var(--bg) 90%, transparent) 100%);backdrop-filter: blur(6px)}
+    .topbar{display:flex;gap:14px;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),#8b5cf6);box-shadow:var(--shadow)}
+    h1{font-size:clamp(22px,2.6vw,32px);margin:0}
+    h2{color:var(--acc);margin-top:2rem}
+    h3{color:var(--fg);margin-top:1.5rem}
+    .actions{display:flex;gap:8px;align-items:center}
+    button, .chip{border:1px solid var(--border);background:var(--muted);color:var(--fg);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600}
+    button:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+    .grid{display:grid;grid-template-columns:280px 1fr;gap:24px;margin-top:24px}
+    nav{position:sticky;top:76px;align-self:start;background:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+    nav h3{margin:4px 0 10px 0;font-size:14px;color:var(--fg-2);letter-spacing:.08em;text-transform:uppercase}
+    nav a{display:block;padding:8px 10px;border-radius:10px;color:var(--fg-2);text-decoration:none;border:1px solid transparent}
+    nav a:hover{color:var(--fg);border-color:var(--border);background:color-mix(in oklab, var(--muted) 90%, var(--acc) 10%)}
+    section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;margin-bottom:18px;box-shadow:var(--shadow)}
+    section h2{margin-top:0;font-size:clamp(20px,2.2vw,26px)}
+    .kpi{display:flex;gap:10px;flex-wrap:wrap;margin:.2rem 0 1rem}
+    .kpi .chip{background:transparent}
+    .tip{border-left:4px solid var(--acc);background:color-mix(in oklab, var(--card) 85%, var(--acc) 10%);padding:12px;border-radius:10px;margin:10px 0}
+    .warn{border-left:4px solid var(--warn);background:color-mix(in oklab, var(--card) 85%, var(--warn) 10%)}
+    .ok{border-left:4px solid var(--ok)}
+    .err{border-left:4px solid var(--err)}
+    .concept{border-left:4px solid #8b5cf6;background:color-mix(in oklab, var(--card) 85%, #8b5cf6 10%)}
+    code, pre{font-family:var(--mono)}
+    pre{position:relative;background:var(--code-bg);color:#e5e7eb;padding:16px;border-radius:var(--radius-sm);overflow:auto;border:1px solid var(--border)}
+    .two{display:grid;gap:16px}
+    @media (min-width: 880px){.two{grid-template-columns:1fr 1fr}}
+    .three{display:grid;gap:16px}
+    @media (min-width: 880px){.three{grid-template-columns:1fr 1fr 1fr}}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border:1px solid var(--border);padding:12px;border-radius:6px;text-align:left}
+    th{background:color-mix(in oklab, var(--card) 85%, var(--acc) 12%);font-weight:600}
+    .small{font-size:.95rem;color:var(--fg-2)}
+    .diagram{background:var(--muted);border:2px dashed var(--border);border-radius:var(--radius);padding:20px;margin:16px 0;text-align:center}
+    .layer{display:inline-block;padding:8px 16px;margin:4px;border-radius:8px;background:var(--acc);color:var(--bg);font-weight:600;font-size:0.9rem}
+    .flow{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+    .flow-item{padding:12px 16px;background:var(--muted);border:1px solid var(--border);border-radius:8px;text-align:center;min-width:100px}
+    .arrow{font-size:1.5rem;color:var(--acc)}
+    footer{opacity:.75;padding:30px 0}
+    details{border:1px dashed var(--border);padding:12px;border-radius:12px;margin:8px 0}
+    summary{cursor:pointer;font-weight:700}
+    .comparison{display:grid;gap:16px}
+    @media (min-width: 880px){.comparison{grid-template-columns:1fr 1fr}}
+    .vs-item{background:var(--muted);padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Fundamentos Teóricos · Sockets TCP/UDP</h1>
+          <div class="small">Contexto conceptual necesario antes de comenzar la <strong>Fase 1</strong> de la práctica de sockets</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="theme">🌗 Modo claro/oscuro</button>
+        <button onclick="window.print()">🖨️ Imprimir / PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <nav>
+        <h3>Contenido</h3>
+        <a href="#introduccion">1. Introducción</a>
+        <a href="#comunicacion">2. Comunicación en red</a>
+        <a href="#cliente-servidor">3. Modelo cliente-servidor</a>
+        <a href="#puertos">4. Puertos y direcciones</a>
+        <a href="#protocolos">5. TCP vs UDP en profundidad</a>
+        <a href="#sockets">6. ¿Qué es un socket?</a>
+        <a href="#casos-uso">7. Casos de uso reales</a>
+        <a href="#preparacion">8. Preparación para experimentos</a>
+      </nav>
+
+      <div>
+        <section id="introduccion">
+          <h2>1) Introducción: ¿Por qué estudiar sockets?</h2>
+          <div class="kpi">
+            <span class="chip">Tiempo de lectura: 25-30 min</span>
+            <span class="chip">Prerequisitos: Programación básica</span>
+            <span class="chip">Nivel: Fundacional</span>
+          </div>
+          
+          <p>Los <strong>sockets</strong> son la base de prácticamente toda comunicación en red moderna. Desde cuando abres una página web, envías un mensaje de WhatsApp, o juegas en línea, estás usando sockets sin saberlo.</p>
+          
+          <div class="concept">
+            <strong>Definición simple:</strong> Un socket es un <em>punto de comunicación</em> que permite que dos programas (posiblemente en computadoras diferentes) intercambien datos a través de una red.
+          </div>
+          
+          <p>En esta guía construiremos el contexto teórico necesario para que la práctica posterior tenga sentido y puedas hacer conexiones conceptuales sólidas.</p>
+        </section>
+
+        <section id="comunicacion">
+          <h2>2) Comunicación en red: De lo físico a lo lógico</h2>
+          
+          <h3>2.1 El modelo OSI simplificado</h3>
+          <p>Para entender sockets, necesitas comprender que la comunicación en red opera en <strong>capas</strong>. Cada capa maneja un aspecto específico:</p>
+          
+          <div class="diagram">
+            <div class="layer" style="background:var(--err)">7. Aplicación (HTTP, FTP, SSH)</div><br>
+            <div class="layer" style="background:var(--warn)">6. Presentación (Cifrado, compresión)</div><br>
+            <div class="layer" style="background:var(--acc)">5. Sesión (Manejo de sesiones)</div><br>
+            <div class="layer" style="background:var(--ok)">4. Transporte (TCP, UDP) ← Aquí trabajamos</div><br>
+            <div class="layer" style="background:var(--fg-2)">3. Red (IP)</div><br>
+            <div class="layer" style="background:var(--fg-2)">2. Enlace (Ethernet, WiFi)</div><br>
+            <div class="layer" style="background:var(--fg-2)">1. Física (Cables, radio)</div>
+          </div>
+          
+          <div class="tip">
+            <strong>Para sockets:</strong> Nos enfocamos en la <strong>capa de transporte</strong> (TCP/UDP) que se encarga de la comunicación confiable entre procesos.
+          </div>
+          
+          <h3>2.2 Direccionamiento en red</h3>
+          <p>Para que dos dispositivos se comuniquen necesitan:</p>
+          <ul>
+            <li><strong>Dirección IP:</strong> Identifica la computadora (ej: 192.168.1.100)</li>
+            <li><strong>Puerto:</strong> Identifica el programa específico en esa computadora (ej: 80 para web)</li>
+          </ul>
+          
+          <div class="flow">
+            <div class="flow-item">Mi Programa<br><small>192.168.1.50:3000</small></div>
+            <div class="arrow">→</div>
+            <div class="flow-item">Internet</div>
+            <div class="arrow">→</div>
+            <div class="flow-item">Servidor Web<br><small>google.com:80</small></div>
+          </div>
+        </section>
+
+        <section id="cliente-servidor">
+          <h2>3) Modelo cliente-servidor</h2>
+          
+          <p>El patrón <strong>cliente-servidor</strong> es fundamental en redes. Define dos roles claramente diferenciados:</p>
+          
+          <div class="comparison">
+            <div class="vs-item">
+              <h4>🔵 Servidor</h4>
+              <ul>
+                <li><strong>Escucha</strong> en un puerto específico</li>
+                <li>Está <strong>siempre disponible</strong></li>
+                <li><strong>Responde</strong> a solicitudes</li>
+                <li>Puede atender <strong>múltiples clientes</strong></li>
+              </ul>
+              <div class="small">Ejemplo: Servidor web, servidor de juegos, servidor de chat</div>
+            </div>
+            
+            <div class="vs-item">
+              <h4>🔴 Cliente</h4>
+              <ul>
+                <li><strong>Se conecta</strong> al servidor</li>
+                <li>Funciona <strong>cuando lo necesita</strong></li>
+                <li><strong>Solicita</strong> servicios</li>
+                <li>Típicamente de <strong>un solo usuario</strong></li>
+              </ul>
+              <div class="small">Ejemplo: Navegador web, aplicación móvil, cliente de juego</div>
+            </div>
+          </div>
+          
+          <h3>3.1 Flujo de comunicación típico</h3>
+          <div class="flow">
+            <div class="flow-item">1. Servidor<br>inicia y escucha</div>
+            <div class="arrow">→</div>
+            <div class="flow-item">2. Cliente<br>se conecta</div>
+            <div class="arrow">→</div>
+            <div class="flow-item">3. Intercambio<br>de datos</div>
+            <div class="arrow">→</div>
+            <div class="flow-item">4. Cliente<br>se desconecta</div>
+          </div>
+          
+          <div class="concept">
+            <strong>Analogía:</strong> Piensa en un restaurante. El restaurante (servidor) está siempre abierto en una dirección fija. Los clientes llegan, hacen pedidos, reciben comida y se van. El restaurante puede atender múltiples mesas simultáneamente.
+          </div>
+        </section>
+
+        <section id="puertos">
+          <h2>4) Puertos y direcciones: El sistema de correspondencia</h2>
+          
+          <h3>4.1 ¿Qué es un puerto?</h3>
+          <p>Un <strong>puerto</strong> es un número (0-65535) que identifica un servicio específico en una computadora.</p>
+          
+          <div class="concept">
+            <strong>Analogía:</strong> Si la dirección IP es como la dirección de un edificio, el puerto es como el número de apartamento. Ambos son necesarios para entregar el "correo" (datos) correctamente.
+          </div>
+          
+          <h3>4.2 Tipos de puertos</h3>
+          <table>
+            <thead>
+              <tr><th>Rango</th><th>Nombre</th><th>Uso</th><th>Ejemplos</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0-1023</td>
+                <td>Well-known ports</td>
+                <td>Servicios estándar del sistema</td>
+                <td>80 (HTTP), 443 (HTTPS), 22 (SSH)</td>
+              </tr>
+              <tr>
+                <td>1024-49151</td>
+                <td>Registered ports</td>
+                <td>Aplicaciones específicas registradas</td>
+                <td>3389 (Remote Desktop), 5432 (PostgreSQL)</td>
+              </tr>
+              <tr>
+                <td>49152-65535</td>
+                <td>Dynamic/Private ports</td>
+                <td>Uso temporal y desarrollo</td>
+                <td>Nuestros experimentos: 5000, 5001</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div class="tip warn">
+            <strong>Para desarrollo:</strong> Usa puertos >= 1024 para evitar conflictos con servicios del sistema. Los puertos < 1024 requieren privilegios de administrador.
+          </div>
+        </section>
+
+        <section id="protocolos">
+          <h2>5) TCP vs UDP: Dos filosofías de comunicación</h2>
+          
+          <p>En la capa de transporte existen principalmente dos protocolos con filosofías completamente diferentes:</p>
+          
+          <div class="comparison">
+            <div class="vs-item">
+              <h4>📞 TCP (Transmission Control Protocol)</h4>
+              <p><strong>Filosofía:</strong> "Comunicación confiable a toda costa"</p>
+              <ul>
+                <li><strong>Connection-oriented:</strong> Establece conexión antes de enviar datos</li>
+                <li><strong>Confiable:</strong> Garantiza que todos los datos lleguen</li>
+                <li><strong>Ordenado:</strong> Los datos llegan en el orden correcto</li>
+                <li><strong>Control de flujo:</strong> Maneja la velocidad de envío</li>
+                <li><strong>Mayor overhead:</strong> Más lento pero más seguro</li>
+              </ul>
+            </div>
+            
+            <div class="vs-item">
+              <h4>📮 UDP (User Datagram Protocol)</h4>
+              <p><strong>Filosofía:</strong> "Velocidad y simplicidad primero"</p>
+              <ul>
+                <li><strong>Connectionless:</strong> Envía datos sin conexión previa</li>
+                <li><strong>No confiable:</strong> Los datos pueden perderse</li>
+                <li><strong>Sin orden garantizado:</strong> Pueden llegar desordenados</li>
+                <li><strong>Sin control de flujo:</strong> Envía a máxima velocidad</li>
+                <li><strong>Menor overhead:</strong> Más rápido pero menos seguro</li>
+              </ul>
+            </div>
+          </div>
+          
+          <h3>5.1 Analogías para entender la diferencia</h3>
+          
+          <details>
+            <summary><strong>TCP = Llamada telefónica</strong></summary>
+            <ul>
+              <li>Estableces la llamada (conexión)</li>
+              <li>Hablas y esperas confirmación ("¿me escuchas?")</li>
+              <li>Si hay interferencia, repites</li>
+              <li>Cuelgas cuando terminas (cierre de conexión)</li>
+            </ul>
+          </details>
+          
+          <details>
+            <summary><strong>UDP = Enviar postales</strong></summary>
+            <ul>
+              <li>Escribes y envías directamente</li>
+              <li>No sabes si llegó</li>
+              <li>Pueden llegar desordenadas</li>
+              <li>Es rápido y simple</li>
+            </ul>
+          </details>
+          
+          <h3>5.2 ¿Cuándo usar cada uno?</h3>
+          <div class="three">
+            <div class="tip ok">
+              <strong>TCP para:</strong>
+              <ul>
+                <li>Navegación web</li>
+                <li>Transferencia de archivos</li>
+                <li>Email</li>
+                <li>Chat importante</li>
+                <li>Bases de datos</li>
+              </ul>
+            </div>
+            
+            <div class="tip warn">
+              <strong>UDP para:</strong>
+              <ul>
+                <li>Transmisión de video/audio</li>
+                <li>Juegos en tiempo real</li>
+                <li>DNS (consultas rápidas)</li>
+                <li>Transmisión en vivo</li>
+                <li>Sensores IoT</li>
+              </ul>
+            </div>
+            
+            <div class="tip">
+              <strong>Criterio de decisión:</strong>
+              <ul>
+                <li>¿Los datos DEBEN llegar? → TCP</li>
+                <li>¿La velocidad es crítica? → UDP</li>
+                <li>¿Tolerancia a pérdida? → UDP</li>
+                <li>¿Datos críticos? → TCP</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="sockets">
+          <h2>6) ¿Qué es un socket exactamente?</h2>
+          
+          <p>Ahora que entendemos las capas de red, podemos definir un socket con precisión:</p>
+          
+          <div class="concept">
+            <strong>Socket:</strong> Una <em>interfaz de programación</em> (API) que permite a las aplicaciones usar los servicios de la capa de transporte (TCP/UDP) para comunicarse a través de la red.
+          </div>
+          
+          <h3>6.1 Componentes de un socket</h3>
+          <p>Un socket se identifica por una tupla de 5 elementos:</p>
+          <ol>
+            <li><strong>Protocolo:</strong> TCP o UDP</li>
+            <li><strong>Dirección IP local:</strong> Mi dirección</li>
+            <li><strong>Puerto local:</strong> Mi puerto</li>
+            <li><strong>Dirección IP remota:</strong> Dirección del otro extremo</li>
+            <li><strong>Puerto remoto:</strong> Puerto del otro extremo</li>
+          </ol>
+          
+          <h3>6.2 Estados de un socket TCP</h3>
+          <div class="flow">
+            <div class="flow-item">CLOSED<br><small>Inicial</small></div>
+            <div class="arrow">→</div>
+            <div class="flow-item">LISTEN<br><small>Servidor esperando</small></div>
+            <div class="arrow">→</div>
+            <div class="flow-item">ESTABLISHED<br><small>Conexión activa</small></div>
+            <div class="arrow">→</div>
+            <div class="flow-item">CLOSED<br><small>Final</small></div>
+          </div>
+          
+          <div class="tip">
+            <strong>En UDP:</strong> No hay estados de conexión porque es connectionless. Los sockets UDP están siempre listos para enviar/recibir.
+          </div>
+        </section>
+
+        <section id="casos-uso">
+          <h2>7) Casos de uso reales</h2>
+          
+          <p>Para conectar la teoría con la realidad, veamos ejemplos concretos:</p>
+          
+          <h3>7.1 Aplicaciones TCP en la vida real</h3>
+          <table>
+            <thead>
+              <tr><th>Aplicación</th><th>Puerto típico</th><th>Por qué TCP</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Navegador web</td>
+                <td>80 (HTTP), 443 (HTTPS)</td>
+                <td>Las páginas web deben cargarse completas</td>
+              </tr>
+              <tr>
+                <td>WhatsApp/Telegram</td>
+                <td>443 (sobre HTTPS)</td>
+                <td>Los mensajes deben llegar íntegros</td>
+              </tr>
+              <tr>
+                <td>Netflix/YouTube</td>
+                <td>443</td>
+                <td>El video debe ser completo y ordenado</td>
+              </tr>
+              <tr>
+                <td>Dropbox/Google Drive</td>
+                <td>443</td>
+                <td>Los archivos no pueden corromperse</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h3>7.2 Aplicaciones UDP en la vida real</h3>
+          <table>
+            <thead>
+              <tr><th>Aplicación</th><th>Puerto típico</th><th>Por qué UDP</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Zoom/Teams (video)</td>
+                <td>Varios</td>
+                <td>Es mejor perder un frame que pausar el video</td>
+              </tr>
+              <tr>
+                <td>Fortnite/Call of Duty</td>
+                <td>Varios</td>
+                <td>Los movimientos deben ser instantáneos</td>
+              </tr>
+              <tr>
+                <td>DNS (google.com → IP)</td>
+                <td>53</td>
+                <td>Consultas rápidas, si falla se reintenta</td>
+              </tr>
+              <tr>
+                <td>Streaming en vivo (Twitch)</td>
+                <td>Varios</td>
+                <td>Tiempo real es más importante que perfección</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="preparacion">
+          <h2>8) Preparación para los experimentos prácticos</h2>
+          
+          <p>Con este contexto, ahora estás preparado para los experimentos de la Fase 1. Aquí tienes las observaciones clave que deberías hacer:</p>
+          
+          <h3>8.1 Guía de observación para TCP</h3>
+          <div class="tip">
+            <strong>Al ejecutar el servidor/cliente TCP, observa:</strong>
+            <ul>
+              <li>¿El cliente puede conectarse sin que el servidor esté corriendo?</li>
+              <li>¿Qué pasa si detienes el servidor mientras el cliente está conectado?</li>
+              <li>¿Los mensajes llegan en el mismo orden que los enviaste?</li>
+              <li>¿Cómo maneja mensajes largos vs el tamaño del buffer?</li>
+            </ul>
+          </div>
+          
+          <h3>8.2 Guía de observación para UDP</h3>
+          <div class="tip warn">
+            <strong>Al ejecutar el servidor/cliente UDP, observa:</strong>
+            <ul>
+              <li>¿El cliente puede "enviar" datos sin servidor corriendo?</li>
+              <li>¿Hay algún mensaje de error inmediato si no hay servidor?</li>
+              <li>¿Los mensajes siempre llegan? ¿En orden?</li>
+              <li>¿Qué pasa con mensajes que exceden el tamaño del buffer?</li>
+            </ul>
+          </div>
+          
+          <h3>8.3 Tabla de observaciones (para tu reporte)</h3>
+          <table>
+            <thead>
+              <tr><th>Experimento</th><th>TCP</th><th>UDP</th><th>Explicación teórica</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cliente sin servidor</td>
+                <td><em>Anota tu observación</em></td>
+                <td><em>Anota tu observación</em></td>
+                <td><em>¿Por qué sucede esto?</em></td>
+              </tr>
+              <tr>
+                <td>Servidor se detiene</td>
+                <td><em>Anota tu observación</em></td>
+                <td><em>Anota tu observación</em></td>
+                <td><em>¿Cuál es la diferencia?</em></td>
+              </tr>
+              <tr>
+                <td>Buffer pequeño (8 bytes)</td>
+                <td><em>Anota tu observación</em></td>
+                <td><em>Anota tu observación</em></td>
+                <td><em>¿Cómo maneja cada protocolo?</em></td>
+              </tr>
+              <tr>
+                <td>Múltiples mensajes rápidos</td>
+                <td><em>Anota tu observación</em></td>
+                <td><em>Anota tu observación</em></td>
+                <td><em>¿Se mantiene el orden?</em></td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div class="tip ok">
+            <strong>¡Importante!</strong> Completa esta tabla durante tus experimentos. Te ayudará a conectar la teoría con lo que observas en la práctica.
+          </div>
+        </section>
+
+        <footer class="small">
+          Fundamentos de Sockets TCP/UDP © 2025 · Contexto teórico para Fase 1 · Material educativo complementario
+        </footer>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const btn = document.getElementById('theme');
+    const current = localStorage.getItem('contexto-theme')||'dark';
+    if(current==='light') document.documentElement.setAttribute('data-theme','light');
+    btn.addEventListener('click',()=>{
+      const isLight = document.documentElement.getAttribute('data-theme')==='light';
+      document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      localStorage.setItem('contexto-theme', isLight ? 'dark' : 'light');
+    });
+  </script>
+</body>
+</html>

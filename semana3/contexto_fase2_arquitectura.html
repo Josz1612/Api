@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arquitectura de Software · Contexto para Fase 2 - Sockets Estructurados</title>
+  <style>
+    :root{
+      --bg:#0b0e11; --muted:#0f141a; --fg:#e6edf3; --fg-2:#b1bac4; --acc:#4cc2ff; --ok:#66d9a3; --warn:#ffd166; --err:#ff6b6b; --card:#11161c;
+      --code-bg:#0a0f14; --border:#1c232b; --shadow:0 10px 30px rgba(0,0,0,.35);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --radius: 14px; --radius-sm: 10px; --maxw: 1080px;
+    }
+    [data-theme="light"]{
+      --bg:#f7f9fc; --muted:#ffffff; --fg:#0e141b; --fg-2:#475467; --acc:#0077ff; --ok:#1a7f5a; --warn:#b7791f; --err:#c53030; --card:#ffffff;
+      --code-bg:#0f172a; --border:#e6eaf0; --shadow:0 12px 28px rgba(10,22,70,.08);
+    }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);line-height:1.6}
+    .wrap{max-width:var(--maxw);margin:auto;padding:24px}
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--bg) 0%, color-mix(in oklab, var(--bg) 90%, transparent) 100%);backdrop-filter: blur(6px)}
+    .topbar{display:flex;gap:14px;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),#8b5cf6);box-shadow:var(--shadow)}
+    h1{font-size:clamp(22px,2.6vw,32px);margin:0}
+    h2{color:var(--acc);margin-top:2rem}
+    h3{color:var(--fg);margin-top:1.5rem}
+    .actions{display:flex;gap:8px;align-items:center}
+    button, .chip{border:1px solid var(--border);background:var(--muted);color:var(--fg);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600}
+    button:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+    .grid{display:grid;grid-template-columns:320px 1fr;gap:24px;margin-top:24px}
+    nav{position:sticky;top:76px;align-self:start;background:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+    nav h3{margin:4px 0 10px 0;font-size:14px;color:var(--fg-2);letter-spacing:.08em;text-transform:uppercase}
+    nav a{display:block;padding:8px 10px;border-radius:10px;color:var(--fg-2);text-decoration:none;border:1px solid transparent}
+    nav a:hover{color:var(--fg);border-color:var(--border);background:color-mix(in oklab, var(--muted) 90%, var(--acc) 10%)}
+    section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;margin-bottom:18px;box-shadow:var(--shadow)}
+    section h2{margin-top:0;font-size:clamp(20px,2.2vw,26px)}
+    .kpi{display:flex;gap:10px;flex-wrap:wrap;margin:.2rem 0 1rem}
+    .kpi .chip{background:transparent}
+    .tip{border-left:4px solid var(--acc);background:color-mix(in oklab, var(--card) 85%, var(--acc) 10%);padding:12px;border-radius:10px;margin:10px 0}
+    .warn{border-left:4px solid var(--warn);background:color-mix(in oklab, var(--card) 85%, var(--warn) 10%)}
+    .ok{border-left:4px solid var(--ok)}
+    .err{border-left:4px solid var(--err)}
+    .concept{border-left:4px solid #8b5cf6;background:color-mix(in oklab, var(--card) 85%, #8b5cf6 10%)}
+    code, pre{font-family:var(--mono)}
+    pre{position:relative;background:var(--code-bg);color:#e5e7eb;padding:16px;border-radius:var(--radius-sm);overflow:auto;border:1px solid var(--border);font-size:0.9rem}
+    .copy{position:absolute;top:8px;right:8px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--border);cursor:pointer}
+    .two{display:grid;gap:16px}
+    @media (min-width: 880px){.two{grid-template-columns:1fr 1fr}}
+    .three{display:grid;gap:16px}
+    @media (min-width: 880px){.three{grid-template-columns:1fr 1fr 1fr}}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border:1px solid var(--border);padding:12px;border-radius:6px;text-align:left}
+    th{background:color-mix(in oklab, var(--card) 85%, var(--acc) 12%);font-weight:600}
+    .small{font-size:.95rem;color:var(--fg-2)}
+    .diagram{background:var(--muted);border:2px dashed var(--border);border-radius:var(--radius);padding:20px;margin:16px 0;text-align:center}
+    .layer{display:inline-block;padding:8px 16px;margin:4px;border-radius:8px;background:var(--acc);color:var(--bg);font-weight:600;font-size:0.9rem}
+    .flow{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+    .flow-item{padding:12px 16px;background:var(--muted);border:1px solid var(--border);border-radius:8px;text-align:center;min-width:100px}
+    .arrow{font-size:1.5rem;color:var(--acc)}
+    footer{opacity:.75;padding:30px 0}
+    details{border:1px dashed var(--border);padding:12px;border-radius:12px;margin:8px 0}
+    summary{cursor:pointer;font-weight:700}
+    .comparison{display:grid;gap:16px}
+    @media (min-width: 880px){.comparison{grid-template-columns:1fr 1fr}}
+    .vs-item{background:var(--muted);padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border)}
+    .architecture-stack{display:flex;flex-direction:column;gap:4px;margin:16px 0}
+    .arch-layer{padding:12px;border:1px solid var(--border);border-radius:8px;text-align:center;font-weight:600}
+    .arch-layer.presentation{background:color-mix(in oklab, var(--card) 85%, var(--err) 15%);}
+    .arch-layer.service{background:color-mix(in oklab, var(--card) 85%, var(--warn) 15%);}
+    .arch-layer.domain{background:color-mix(in oklab, var(--card) 85%, var(--acc) 15%);}
+    .arch-layer.data{background:color-mix(in oklab, var(--card) 85%, var(--ok) 15%);}
+    .evolution{display:grid;gap:16px;margin:16px 0}
+    @media (min-width: 880px){.evolution{grid-template-columns:1fr 1fr 1fr}}
+    .evolution-stage{padding:16px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center}
+    .stage1{background:color-mix(in oklab, var(--card) 85%, var(--err) 10%)}
+    .stage2{background:color-mix(in oklab, var(--card) 85%, var(--warn) 10%)}
+    .stage3{background:color-mix(in oklab, var(--card) 85%, var(--ok) 10%)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Arquitectura de Software · Contexto para Fase 2</h1>
+          <div class="small">Conceptos de <strong>arquitectura</strong>, <strong>dependency injection</strong>, <strong>concurrencia</strong> y <strong>testing</strong> necesarios para desarrollar sockets estructurados</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="theme">Modo claro/oscuro</button>
+        <button onclick="window.print()">Imprimir / PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <nav>
+        <h3>Contenido</h3>
+        <a href="#introduccion">1. Del script a la aplicación</a>
+        <a href="#arquitectura">2. Arquitectura en capas</a>
+        <a href="#dependency-injection">3. Dependency Injection</a>
+        <a href="#concurrencia">4. Concurrencia y async/await</a>
+        <a href="#logging">5. Logging y observabilidad</a>
+        <a href="#testing">6. Testing automatizado</a>
+        <a href="#rest-api">7. APIs REST y HTTP</a>
+        <a href="#patrones">8. Patrones de diseño</a>
+        <a href="#preparacion">9. Preparación para Fase 2</a>
+      </nav>
+
+      <div>
+        <section id="introduccion">
+          <h2>1) Del script simple a la aplicación estructurada</h2>
+          <div class="kpi">
+            <span class="chip">Tiempo de lectura: 35-40 min</span>
+            <span class="chip">Prerequisitos: Fase 1 completada</span>
+            <span class="chip">Nivel: Intermedio</span>
+          </div>
+          
+          <p>En la Fase 1 escribiste scripts simples que funcionan. Pero ¿qué pasa cuando necesitas:</p>
+          <ul>
+            <li>Mantener el código a largo plazo</li>
+            <li>Agregar nuevas funcionalidades</li>
+            <li>Colaborar con otros desarrolladores</li>
+            <li>Probar automáticamente que todo funciona</li>
+            <li>Integrar con otros sistemas</li>
+          </ul>
+          
+          <div class="concept">
+            <strong>El problema:</strong> Los scripts monolíticos funcionan para demostraciones, pero no escalan para aplicaciones reales. Necesitas <em>arquitectura de software</em>.
+          </div>
+          
+          <h3>1.1 Evolución del código</h3>
+          <div class="evolution">
+            <div class="evolution-stage stage1">
+              <h4>Fase 1: Scripts</h4>
+              <ul>
+                <li>Un archivo por funcionalidad</li>
+                <li>Código lineal</li>
+                <li>Sin reutilización</li>
+                <li>Difícil de probar</li>
+              </ul>
+            </div>
+            
+            <div class="evolution-stage stage2">
+              <h4>Fase 2: Estructurado</h4>
+              <ul>
+                <li>Múltiples proyectos</li>
+                <li>Separación de responsabilidades</li>
+                <li>Interfaces y contratos</li>
+                <li>Testeable y mantenible</li>
+              </ul>
+            </div>
+            
+            <div class="evolution-stage stage3">
+              <h4>Producción: Enterprise</h4>
+              <ul>
+                <li>Observabilidad completa</li>
+                <li>Escalabilidad horizontal</li>
+                <li>Tolerancia a fallos</li>
+                <li>CI/CD automatizado</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="arquitectura">
+          <h2>2) Arquitectura en capas: Divide y vencerás</h2>
+          
+          <p>La <strong>arquitectura en capas</strong> es un patrón fundamental que organiza el código según su responsabilidad:</p>
+          
+          <div class="architecture-stack">
+            <div class="arch-layer presentation">Presentación (API, CLI, UI)</div>
+            <div class="arch-layer service">Servicios (Lógica de aplicación)</div>
+            <div class="arch-layer domain">Dominio (Lógica de negocio)</div>
+            <div class="arch-layer data">Datos (Persistencia, red)</div>
+          </div>
+          
+          <h3>2.1 Responsabilidades por capa</h3>
+          <table>
+            <thead>
+              <tr><th>Capa</th><th>Responsabilidad</th><th>Ejemplo en sockets</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Presentación</strong></td>
+                <td>Interfaz con el usuario/sistema</td>
+                <td>API REST, CLI, controladores</td>
+              </tr>
+              <tr>
+                <td><strong>Servicios</strong></td>
+                <td>Orquestación y flujos de trabajo</td>
+                <td>Manejo de múltiples clientes, logging</td>
+              </tr>
+              <tr>
+                <td><strong>Dominio</strong></td>
+                <td>Reglas de negocio y validaciones</td>
+                <td>Protocolos de comunicación, validación de mensajes</td>
+              </tr>
+              <tr>
+                <td><strong>Datos</strong></td>
+                <td>Acceso a recursos externos</td>
+                <td>Sockets TCP/UDP, configuración, logs</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h3>2.2 Beneficios de la separación en capas</h3>
+          <div class="three">
+            <div class="tip ok">
+              <strong>Mantenibilidad</strong>
+              <ul>
+                <li>Cambios aislados por capa</li>
+                <li>Código más legible</li>
+                <li>Fácil localización de bugs</li>
+              </ul>
+            </div>
+            
+            <div class="tip warn">
+              <strong>Testabilidad</strong>
+              <ul>
+                <li>Pruebas unitarias por capa</li>
+                <li>Mocks y stubs fáciles</li>
+                <li>Cobertura granular</li>
+              </ul>
+            </div>
+            
+            <div class="tip">
+              <strong>Flexibilidad</strong>
+              <ul>
+                <li>Cambiar implementaciones</li>
+                <li>Múltiples interfaces</li>
+                <li>Evolución independiente</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="concept">
+            <strong>Principio clave:</strong> Las capas superiores pueden depender de las inferiores, pero nunca al revés. Esto se logra mediante <strong>interfaces</strong> y <strong>dependency injection</strong>.
+          </div>
+        </section>
+
+        <section id="dependency-injection">
+          <h2>3) Dependency Injection: Inversión de control</h2>
+          
+          <p>La <strong>Inyección de Dependencias (DI)</strong> es un patrón que invierte el control sobre las dependencias de una clase.</p>
+          
+          <h3>3.1 Sin DI vs Con DI</h3>
+          <div class="comparison">
+            <div class="vs-item">
+              <h4>❌ Sin Dependency Injection</h4>
+              <pre><code>public class TcpServer
+{
+    private ILogger logger;
+    
+    public TcpServer()
+    {
+        // Dependencia codificada
+        logger = new ConsoleLogger();
+    }
+}</code></pre>
+              <p><strong>Problemas:</strong></p>
+              <ul>
+                <li>Acoplamiento fuerte</li>
+                <li>Difícil de testear</li>
+                <li>Inflexible</li>
+              </ul>
+            </div>
+            
+            <div class="vs-item">
+              <h4>✅ Con Dependency Injection</h4>
+              <pre><code>public class TcpServer
+{
+    private readonly ILogger logger;
+    
+    public TcpServer(ILogger logger)
+    {
+        // Dependencia inyectada
+        this.logger = logger;
+    }
+}</code></pre>
+              <p><strong>Beneficios:</strong></p>
+              <ul>
+                <li>Acoplamiento débil</li>
+                <li>Testeable fácilmente</li>
+                <li>Flexible y configurable</li>
+              </ul>
+            </div>
+          </div>
+          
+          <h3>3.2 Contenedor de DI en .NET</h3>
+          <p>.NET incluye un contenedor de DI integrado que maneja el ciclo de vida de objetos:</p>
+          
+          <pre><code>// Program.cs - Configuración
+var builder = Host.CreateApplicationBuilder(args);
+
+// Registrar servicios
+builder.Services.AddSingleton&lt;ITcpEchoClient, TcpEchoClient&gt;();
+builder.Services.AddScoped&lt;IMessageProcessor, MessageProcessor&gt;();
+builder.Services.AddTransient&lt;IValidator, MessageValidator&gt;();
+
+var app = builder.Build();
+
+// Resolver automáticamente
+var client = app.Services.GetRequiredService&lt;ITcpEchoClient&gt;();</code></pre>
+          
+          <h3>3.3 Ciclos de vida en DI</h3>
+          <table>
+            <thead>
+              <tr><th>Tipo</th><th>Comportamiento</th><th>Cuándo usar</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Singleton</strong></td>
+                <td>Una instancia para toda la aplicación</td>
+                <td>Servicios sin estado, configuración</td>
+              </tr>
+              <tr>
+                <td><strong>Scoped</strong></td>
+                <td>Una instancia por solicitud/scope</td>
+                <td>Servicios de datos, contextos</td>
+              </tr>
+              <tr>
+                <td><strong>Transient</strong></td>
+                <td>Nueva instancia cada vez</td>
+                <td>Servicios ligeros, validadores</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div class="tip warn">
+            <strong>Cuidado:</strong> Los Singletons deben ser thread-safe si van a ser usados concurrentemente, ya que múltiples hilos pueden acceder a la misma instancia.
+          </div>
+        </section>
+
+        <section id="concurrencia">
+          <h2>4) Concurrencia y async/await: Manejando múltiples operaciones</h2>
+          
+          <p>Los sockets naturalmente requieren concurrencia: un servidor debe manejar múltiples clientes simultáneamente.</p>
+          
+          <h3>4.1 Programación síncrona vs asíncrona</h3>
+          <div class="comparison">
+            <div class="vs-item">
+              <h4>🔄 Síncrono (Bloqueante)</h4>
+              <pre><code>// Un cliente a la vez
+while (true)
+{
+    var client = server.AcceptTcpClient();
+    ProcessClient(client); // BLOQUEA
+    // El siguiente cliente debe esperar
+}</code></pre>
+              <p>El hilo se bloquea esperando cada operación.</p>
+            </div>
+            
+            <div class="vs-item">
+              <h4>⚡ Asíncrono (No bloqueante)</h4>
+              <pre><code>// Múltiples clientes concurrentes
+while (true)
+{
+    var client = await server.AcceptTcpClientAsync();
+    _ = ProcessClientAsync(client); // NO BLOQUEA
+    // Inmediatamente puede aceptar otro cliente
+}</code></pre>
+              <p>El hilo no se bloquea, puede manejar otras tareas.</p>
+            </div>
+          </div>
+          
+          <h3>4.2 El patrón async/await en profundidad</h3>
+          <div class="concept">
+            <strong>async/await:</strong> Permite escribir código asíncrono que <em>se lee</em> como síncrono, pero <em>se ejecuta</em> sin bloquear hilos.
+          </div>
+          
+          <pre><code>public async Task&lt;string&gt; ProcessMessageAsync(string message)
+{
+    // Operación de red (no bloquea el hilo)
+    var result = await networkClient.SendAsync(message);
+    
+    // Operación CPU-intensiva (bloquea, pero es rápida)
+    var processed = result.ToUpper();
+    
+    // Otra operación de red
+    await logService.WriteAsync($"Processed: {processed}");
+    
+    return processed;
+}</code></pre>
+          
+          <h3>4.3 Manejo de múltiples tareas concurrentes</h3>
+          <pre><code>public async Task RunServerAsync(CancellationToken ct)
+{
+    var tasks = new List&lt;Task&gt;();
+    
+    while (!ct.IsCancellationRequested)
+    {
+        var client = await listener.AcceptTcpClientAsync(ct);
+        
+        // Inicia tarea concurrente SIN esperar
+        var task = HandleClientAsync(client, ct);
+        tasks.Add(task);
+        
+        // Limpia tareas completadas
+        tasks.RemoveAll(t => t.IsCompleted);
+    }
+    
+    // Espera que todas terminen antes de cerrar
+    await Task.WhenAll(tasks);
+}</code></pre>
+          
+          <h3>4.4 CancellationToken: Control de cancelación</h3>
+          <div class="tip">
+            <strong>CancellationToken</strong> permite cancelar operaciones asíncronas de forma cooperativa:
+          </div>
+          
+          <pre><code>public async Task LongRunningOperationAsync(CancellationToken ct)
+{
+    for (int i = 0; i < 1000000; i++)
+    {
+        // Verifica si se solicitó cancelación
+        ct.ThrowIfCancellationRequested();
+        
+        await DoWorkAsync(ct);
+        
+        // También puede pasar el token a operaciones hijas
+        await network.SendAsync(data, ct);
+    }
+}</code></pre>
+        </section>
+
+        <section id="logging">
+          <h2>5) Logging y observabilidad: ¿Qué está pasando?</h2>
+          
+          <p>En aplicaciones reales, necesitas saber qué está sucediendo, especialmente cuando algo falla.</p>
+          
+          <h3>5.1 Niveles de logging</h3>
+          <table>
+            <thead>
+              <tr><th>Nivel</th><th>Uso</th><th>Ejemplo en sockets</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Trace</strong></td>
+                <td>Información detallada de debugging</td>
+                <td>Bytes individuales enviados/recibidos</td>
+              </tr>
+              <tr>
+                <td><strong>Debug</strong></td>
+                <td>Información útil para desarrollo</td>
+                <td>Parámetros de conexión, estados internos</td>
+              </tr>
+              <tr>
+                <td><strong>Information</strong></td>
+                <td>Flujo general de la aplicación</td>
+                <td>Cliente conectado, mensaje procesado</td>
+              </tr>
+              <tr>
+                <td><strong>Warning</strong></td>
+                <td>Algo inusual pero no crítico</td>
+                <td>Reintento de conexión, timeout leve</td>
+              </tr>
+              <tr>
+                <td><strong>Error</strong></td>
+                <td>Errores que impiden operaciones</td>
+                <td>Conexión fallida, datos corruptos</td>
+              </tr>
+              <tr>
+                <td><strong>Critical</strong></td>
+                <td>Errores que pueden detener la aplicación</td>
+                <td>Puerto ocupado, memoria agotada</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h3>5.2 Logging estructurado</h3>
+          <div class="comparison">
+            <div class="vs-item">
+              <h4>❌ Logging no estructurado</h4>
+              <pre><code>logger.LogInformation(
+    "Cliente " + client.Id + 
+    " envió mensaje de " + 
+    message.Length + " bytes");
+              </code></pre>
+              <p>Difícil de buscar y analizar</p>
+            </div>
+            
+            <div class="vs-item">
+              <h4>✅ Logging estructurado</h4>
+              <pre><code>logger.LogInformation(
+    "Cliente {ClientId} envió mensaje de {MessageLength} bytes",
+    client.Id, 
+    message.Length);
+              </code></pre>
+              <p>Permite consultas y análisis automatizado</p>
+            </div>
+          </div>
+          
+          <h3>5.3 Configuración de logging</h3>
+          <pre><code>// appsettings.json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "SocketsLab.TcpServer": "Debug",
+      "System.Net": "Warning"
+    }
+  }
+}
+
+// Program.cs
+builder.Services.AddLogging(config => {
+    config.AddConsole();
+    config.AddFile("logs/app.log");
+});</code></pre>
+        </section>
+
+        <section id="testing">
+          <h2>6) Testing automatizado: Confianza en tu código</h2>
+          
+          <p>Las pruebas automatizadas son esenciales para mantener código de calidad a medida que crece.</p>
+          
+          <h3>6.1 Pirámide de testing</h3>
+          <div class="diagram">
+            <div class="layer" style="background:var(--warn);width:80px">E2E</div><br>
+            <div class="layer" style="background:var(--acc);width:160px">Integración</div><br>
+            <div class="layer" style="background:var(--ok);width:240px">Unitarias</div>
+          </div>
+          
+          <table>
+            <thead>
+              <tr><th>Tipo</th><th>Qué prueba</th><th>Velocidad</th><th>Costo</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Unitarias</strong></td>
+                <td>Métodos/clases individuales</td>
+                <td>Muy rápidas (ms)</td>
+                <td>Bajo</td>
+              </tr>
+              <tr>
+                <td><strong>Integración</strong></td>
+                <td>Componentes trabajando juntos</td>
+                <td>Moderadas (segundos)</td>
+                <td>Medio</td>
+              </tr>
+              <tr>
+                <td><strong>End-to-End</strong></td>
+                <td>Flujo completo del usuario</td>
+                <td>Lentas (minutos)</td>
+                <td>Alto</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h3>6.2 Pruebas unitarias con xUnit</h3>
+          <pre><code>[Fact]
+public async Task EchoClient_SendMessage_ReturnsEcho()
+{
+    // Arrange
+    var mockSocket = new Mock&lt;ISocket&gt;();
+    mockSocket.Setup(s => s.SendAsync("hello"))
+             .ReturnsAsync("hello");
+    
+    var client = new TcpEchoClient(mockSocket.Object);
+    
+    // Act
+    var result = await client.EchoAsync("127.0.0.1", 5000, "hello");
+    
+    // Assert
+    Assert.Equal("hello", result);
+    mockSocket.Verify(s => s.SendAsync("hello"), Times.Once);
+}</code></pre>
+          
+          <h3>6.3 Pruebas de integración</h3>
+          <pre><code>[Fact]
+public async Task TcpServer_AcceptsConnection_ProcessesMessage()
+{
+    // Arrange
+    var server = new TcpEchoServer(logger);
+    var serverTask = server.RunAsync(5000, cts.Token);
+    
+    await Task.Delay(100); // Espera que el servidor inicie
+    
+    var client = new TcpClient();
+    await client.ConnectAsync("127.0.0.1", 5000);
+    
+    // Act
+    var stream = client.GetStream();
+    var message = Encoding.UTF8.GetBytes("test");
+    await stream.WriteAsync(message);
+    
+    var buffer = new byte[1024];
+    var n = await stream.ReadAsync(buffer);
+    
+    // Assert
+    var echo = Encoding.UTF8.GetString(buffer, 0, n);
+    Assert.Equal("test", echo);
+}</code></pre>
+        </section>
+
+        <section id="rest-api">
+          <h2>7) APIs REST y HTTP: Puente al mundo web</h2>
+          
+          <p>Las APIs REST permiten que aplicaciones web interactúen con tus servicios de sockets.</p>
+          
+          <h3>7.1 Conceptos HTTP básicos</h3>
+          <table>
+            <thead>
+              <tr><th>Método</th><th>Propósito</th><th>Ejemplo</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>GET</strong></td>
+                <td>Obtener datos</td>
+                <td>GET /api/server/status</td>
+              </tr>
+              <tr>
+                <td><strong>POST</strong></td>
+                <td>Enviar/crear datos</td>
+                <td>POST /api/echo con body</td>
+              </tr>
+              <tr>
+                <td><strong>PUT</strong></td>
+                <td>Actualizar completo</td>
+                <td>PUT /api/config</td>
+              </tr>
+              <tr>
+                <td><strong>DELETE</strong></td>
+                <td>Eliminar</td>
+                <td>DELETE /api/connection/123</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h3>7.2 Minimal APIs en .NET</h3>
+          <pre><code>var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton&lt;ITcpEchoClient, TcpEchoClient&gt;();
+
+var app = builder.Build();
+
+// Endpoint simple
+app.MapGet("/health", () => "OK");
+
+// Endpoint con dependencias
+app.MapPost("/echo", async (
+    ITcpEchoClient client, 
+    EchoRequest request) => 
+{
+    var result = await client.EchoAsync(
+        "127.0.0.1", 5000, request.Message);
+    
+    return Results.Ok(new { echo = result });
+});
+
+record EchoRequest(string Message);</code></pre>
+          
+          <h3>7.3 ¿Por qué un puente HTTP → TCP?</h3>
+          <div class="flow">
+            <div class="flow-item">Aplicación Web<br>(React, Angular)</div>
+            <div class="arrow">HTTP POST</div>
+            <div class="flow-item">API REST<br>(.NET)</div>
+            <div class="arrow">TCP Socket</div>
+            <div class="flow-item">Servidor TCP<br>(Backend)</div>
+          </div>
+          
+          <p>Esto permite que aplicaciones web (que solo hablan HTTP) accedan a servicios que usan protocolos propietarios o especializados.</p>
+        </section>
+
+        <section id="patrones">
+          <h2>8) Patrones de diseño esenciales</h2>
+          
+          <h3>8.1 Repository Pattern</h3>
+          <p>Abstrae el acceso a datos (o en nuestro caso, la comunicación de red):</p>
+          
+          <pre><code>public interface IMessageRepository
+{
+    Task&lt;string&gt; SendEchoAsync(string host, int port, string message);
+    Task&lt;IEnumerable&lt;string&gt;&gt; GetConnectionHistoryAsync();
+}
+
+public class TcpMessageRepository : IMessageRepository
+{
+    private readonly ITcpClient tcpClient;
+    
+    public async Task&lt;string&gt; SendEchoAsync(string host, int port, string message)
+    {
+        // Implementación específica de TCP
+        return await tcpClient.EchoAsync(host, port, message);
+    }
+}</code></pre>
+          
+          <h3>8.2 Service Layer Pattern</h3>
+          <p>Orquesta operaciones complejas usando múltiples repositorios:</p>
+          
+          <pre><code>public class EchoService
+{
+    private readonly IMessageRepository messageRepo;
+    private readonly ILogger&lt;EchoService&gt; logger;
+    
+    public async Task&lt;EchoResult&gt; ProcessEchoAsync(EchoCommand command)
+    {
+        logger.LogInformation("Procesando eco para {Host}:{Port}", 
+            command.Host, command.Port);
+            
+        var echo = await messageRepo.SendEchoAsync(
+            command.Host, command.Port, command.Message);
+            
+        return new EchoResult(echo, DateTime.UtcNow);
+    }
+}</code></pre>
+          
+          <h3>8.3 Factory Pattern</h3>
+          <p>Crea objetos complejos basándose en configuración:</p>
+          
+          <pre><code>public interface ISocketFactory
+{
+    ISocket CreateSocket(SocketType type);
+}
+
+public class SocketFactory : ISocketFactory
+{
+    public ISocket CreateSocket(SocketType type) => type switch
+    {
+        SocketType.Tcp => new TcpSocket(),
+        SocketType.Udp => new UdpSocket(),
+        _ => throw new ArgumentException($"Tipo no soportado: {type}")
+    };
+}</code></pre>
+        </section>
+
+        <section id="preparacion">
+          <h2>9) Preparación para la Fase 2: Lista de verificación</h2>
+          
+          <p>Antes de comenzar la Fase 2, asegúrate de entender estos conceptos:</p>
+          
+          <h3>9.1 Checklist conceptual</h3>
+          <div style="display:grid;gap:8px;margin:16px 0">
+            <label style="display:flex;gap:8px;align-items:center">
+              <input type="checkbox" style="width:18px;height:18px">
+              <span>Entiendo por qué separar código en capas (presentación, servicio, dominio, datos)</span>
+            </label>
+            <label style="display:flex;gap:8px;align-items:center">
+              <input type="checkbox" style="width:18px;height:18px">
+              <span>Comprendo qué es Dependency Injection y sus beneficios</span>
+            </label>
+            <label style="display:flex;gap:8px;align-items:center">
+              <input type="checkbox" style="width:18px;height:18px">
+              <span>Conozco la diferencia entre Singleton, Scoped y Transient</span>
+            </label>
+            <label style="display:flex;gap:8px;align-items:center">
+              <input type="checkbox" style="width:18px;height:18px">
+              <span>Entiendo async/await y CancellationToken</span>
+            </label>
+            <label style="display:flex;gap:8px;align-items:center">
+              <input type="checkbox" style="width:18px;height:18px">
+              <span>Sé por qué el logging es importante y cómo estructurarlo</span>
+            </label>
+            <label style="display:flex;gap:8px;align-items:center">
+              <input type="checkbox" style="width:18px;height:18px">
+              <span>Comprendo los tipos de pruebas (unitaria, integración, E2E)</span>
+            </label>
+            <label style="display:flex;gap:8px;align-items:center">
+              <input type="checkbox" style="width:18px;height:18px">
+              <span>Entiendo por qué crear un puente HTTP → TCP</span>
+            </label>
+          </div>
+          
+          <h3>9.2 Preguntas de reflexión</h3>
+          <p>Reflexiona sobre estas preguntas antes de proceder:</p>
+          <ol>
+            <li>¿Qué problemas de mantenibilidad tenían tus scripts de la Fase 1?</li>
+            <li>¿Cómo cambiarías el cliente TCP para usar un logger diferente sin modificar su código?</li>
+            <li>¿Por qué es importante que un servidor pueda manejar múltiples clientes concurrentemente?</li>
+            <li>¿Cómo probarías que tu servidor TCP maneja correctamente desconexiones inesperadas?</li>
+            <li>¿En qué escenarios sería útil exponer funcionalidad de sockets a través de HTTP?</li>
+          </ol>
+          
+          <h3>9.3 Recursos adicionales</h3>
+          <details>
+            <summary>Documentación oficial de Microsoft</summary>
+            <ul>
+              <li><a href="#">Dependency Injection en .NET</a></li>
+              <li><a href="#">Async/Await Best Practices</a></li>
+              <li><a href="#">Logging en .NET</a></li>
+              <li><a href="#">Testing con xUnit</a></li>
+            </ul>
+          </details>
+          
+          <div class="tip ok">
+            <strong>¡Listo para la Fase 2!</strong> Con estos conceptos claros, podrás entender no solo <em>cómo</em> implementar la solución estructurada, sino también <em>por qué</em> cada decisión arquitectónica tiene sentido.
+          </div>
+        </section>
+
+        <footer class="small">
+          Arquitectura de Software para Sockets © 2025 · Contexto teórico para Fase 2 · Material educativo complementario
+        </footer>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const btn = document.getElementById('theme');
+    const current = localStorage.getItem('contexto2-theme')||'dark';
+    if(current==='light') document.documentElement.setAttribute('data-theme','light');
+    btn.addEventListener('click',()=>{
+      const isLight = document.documentElement.getAttribute('data-theme')==='light';
+      document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      localStorage.setItem('contexto2-theme', isLight ? 'dark' : 'light');
+    });
+  </script>
+</body>
+</html>

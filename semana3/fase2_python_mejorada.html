@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fase 2 · Python · Sockets Estructurados con DI, Logging y Robustez</title>
+  <style>
+    :root{
+      --bg:#0b0e11; --muted:#0f141a; --fg:#e6edf3; --fg-2:#b1bac4; --acc:#4cc2ff; --ok:#66d9a3; --warn:#ffd166; --err:#ff6b6b; --card:#11161c;
+      --code-bg:#0a0f14; --border:#1c232b; --shadow:0 10px 30px rgba(0,0,0,.35);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --radius: 14px; --radius-sm: 10px; --maxw: 1080px;
+    }
+    [data-theme="light"]{
+      --bg:#f7f9fc; --muted:#ffffff; --fg:#0e141b; --fg-2:#475467; --acc:#0077ff; --ok:#1a7f5a; --warn:#b7791f; --err:#c53030; --card:#ffffff;
+      --code-bg:#0f172a; --border:#e6eaf0; --shadow:0 12px 28px rgba(10,22,70,.08);
+    }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);line-height:1.6}
+    .wrap{max-width:var(--maxw);margin:auto;padding:24px}
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--bg) 0%, color-mix(in oklab, var(--bg) 90%, transparent) 100%);backdrop-filter: blur(6px)}
+    .topbar{display:flex;gap:14px;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),#8b5cf6);box-shadow:var(--shadow)}
+    h1{font-size:clamp(22px,2.6vw,32px);margin:0}
+    .actions{display:flex;gap:8px;align-items:center}
+    button, .chip{border:1px solid var(--border);background:var(--muted);color:var(--fg);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600}
+    button:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+    .grid{display:grid;grid-template-columns:320px 1fr;gap:24px;margin-top:24px}
+    nav{position:sticky;top:76px;align-self:start;background:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+    nav h3{margin:4px 0 10px 0;font-size:14px;color:var(--fg-2);letter-spacing:.08em;text-transform:uppercase}
+    nav a{display:block;padding:8px 10px;border-radius:10px;color:var(--fg-2);text-decoration:none;border:1px solid transparent}
+    nav a:hover{color:var(--fg);border-color:var(--border);background:color-mix(in oklab, var(--muted) 90%, var(--acc) 10%)}
+    section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;margin-bottom:18px;box-shadow:var(--shadow)}
+    section h2{margin-top:0;font-size:clamp(20px,2.2vw,26px)}
+    .kpi{display:flex;gap:10px;flex-wrap:wrap;margin:.2rem 0 1rem}
+    .kpi .chip{background:transparent}
+    .tip{border-left:4px solid var(--acc);background:color-mix(in oklab, var(--card) 85%, var(--acc) 10%);padding:12px;border-radius:10px;margin:10px 0}
+    .warn{border-left:4px solid var(--warn);background:color-mix(in oklab, var(--card) 85%, var(--warn) 10%)}
+    .ok{border-left:4px solid var(--ok)}
+    .err{border-left:4px solid var(--err)}
+    .concept{border-left:4px solid #8b5cf6;background:color-mix(in oklab, var(--card) 85%, #8b5cf6 10%)}
+    code, pre{font-family:var(--mono)}
+    pre{position:relative;background:var(--code-bg);color:#e5e7eb;padding:16px;border-radius:var(--radius-sm);overflow:auto;border:1px solid var(--border);font-size:0.9rem}
+    .copy{position:absolute;top:8px;right:8px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--border);cursor:pointer}
+    .task{display:grid;grid-template-columns:24px 1fr;gap:12px;margin:8px 0;align-items:start}
+    .task input{width:18px;height:18px;margin-top:4px}
+    .two{display:grid;gap:16px}
+    @media (min-width: 880px){.two{grid-template-columns:1fr 1fr}}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border:1px solid var(--border);padding:10px;border-radius:6px}
+    th{background:color-mix(in oklab, var(--card) 85%, var(--acc) 12%);text-align:left}
+    .small{font-size:.95rem;color:var(--fg-2)}
+    footer{opacity:.75;padding:30px 0}
+    details{border:1px dashed var(--border);padding:10px;border-radius:12px}
+    summary{cursor:pointer;font-weight:700}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Fase 2 · Python · Sockets Estructurados con DI, Logging y Robustez</h1>
+          <div class="small">Implementarás sockets con <strong>dependency injection</strong>, <strong>logging estructurado</strong>, <strong>manejo de errores robusto</strong> y <strong>testing completo</strong></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="theme">🌗 Modo claro/oscuro</button>
+        <button onclick="window.print()">🖨️ Imprimir / PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <nav>
+        <h3>Contenido</h3>
+        <a href="#objetivos">1. Objetivos</a>
+        <a href="#arquitectura">2. Arquitectura</a>
+        <a href="#prep">3. Preparación</a>
+        <a href="#core">4. Core (DI y configuración)</a>
+        <a href="#tcp">5. TCP robusto</a>
+        <a href="#udp">6. UDP</a>
+        <a href="#api">7. API HTTP con DI</a>
+        <a href="#tests">8. Testing completo</a>
+        <a href="#validacion">9. Validación</a>
+        <a href="#troubleshooting">10. Troubleshooting</a>
+        <a href="#entregables">11. Entregables</a>
+      </nav>
+
+      <div>
+        <section id="objetivos">
+          <h2>1) Objetivos y resultados</h2>
+          <div class="kpi">
+            <span class="chip">Duración: 140-180 min</span>
+            <span class="chip">Nivel: Intermedio-Avanzado</span>
+            <span class="chip">Modalidad: Autogestión</span>
+          </div>
+          <ul>
+            <li>Implementar <strong>Dependency Injection</strong> básico en Python con typing</li>
+            <li>Configurar <strong>logging estructurado</strong> desde el inicio</li>
+            <li>Manejar <strong>timeouts, excepciones y cancelación</strong> robustamente</li>
+            <li>Estructurar con <strong>capas claras</strong> y <strong>separación de responsabilidades</strong></li>
+            <li>Testing con <strong>casos de error</strong> y <strong>mocks</strong></li>
+          </ul>
+          <div class="tip ok"><strong>Resultado esperado:</strong> aplicación Python de nivel empresarial con patrones equiparables a .NET</div>
+        </section>
+
+        <section id="arquitectura">
+          <h2>2) Arquitectura</h2>
+          <pre><code>SocketsPyPro/
+ ├── core/
+ │   ├── __init__.py
+ │   ├── contracts.py      # ABC interfaces
+ │   ├── container.py      # DI container
+ │   ├── logging_config.py # Configuración de logs
+ │   ├── exceptions.py     # Excepciones custom
+ │   └── config.py         # Configuración centralizada
+ ├── tcp_server/
+ │   ├── __init__.py
+ │   └── server.py
+ ├── tcp_client/
+ │   ├── __init__.py
+ │   └── client.py
+ ├── udp_server/
+ │   ├── __init__.py
+ │   └── server.py
+ ├── api/
+ │   ├── __init__.py
+ │   └── main.py
+ ├── tests/
+ │   ├── __init__.py
+ │   ├── test_tcp.py
+ │   ├── test_api.py
+ │   └── conftest.py       # pytest fixtures
+ ├── config/
+ │   └── logging.json      # Configuración de logging
+ ├── requirements.txt
+ └── run_server.py         # Entry point principal
+</code></pre>
+        </section>
+
+        <section id="prep">
+          <h2>3) Preparación del entorno</h2>
+          <pre><button class="copy" data-copy="#prep-steps">Copiar</button><code id="prep-steps"># Crear entorno virtual
+python3 -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate.bat  # Windows
+
+# Instalar dependencias
+pip install fastapi uvicorn pytest pytest-asyncio httpx pytest-mock
+
+# requirements.txt
+fastapi==0.104.*
+uvicorn[standard]==0.24.*
+pytest==7.4.*
+pytest-asyncio==0.21.*
+httpx==0.25.*
+pytest-mock==3.12.*
+</code></pre>
+        </section>
+
+        <section id="core">
+          <h2>4) Core: DI, configuración y logging</h2>
+          
+          <h3>4.1 Contratos (interfaces)</h3>
+          <pre><button class="copy" data-copy="#contracts">Copiar</button><code id="contracts"># core/contracts.py
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Optional
+import logging
+
+class ITcpEchoServer(ABC):
+    @abstractmethod
+    async def run(self, port: int) -> None: ...
+
+class ITcpEchoClient(ABC):
+    @abstractmethod
+    async def echo(self, host: str, port: int, message: str, timeout: float = 5.0) -> str: ...
+
+class ILogger(ABC):
+    @abstractmethod
+    def info(self, message: str, **kwargs) -> None: ...
+    
+    @abstractmethod
+    def error(self, message: str, **kwargs) -> None: ...
+    
+    @abstractmethod
+    def warning(self, message: str, **kwargs) -> None: ...
+
+class IConfigService(ABC):
+    @abstractmethod
+    def get(self, key: str, default: Optional[str] = None) -> Optional[str]: ...
+</code></pre>
+
+          <h3>4.2 Dependency Injection Container</h3>
+          <pre><button class="copy" data-copy="#container">Copiar</button><code id="container"># core/container.py
+from typing import TypeVar, Type, Dict, Any, Callable
+import logging
+
+T = TypeVar('T')
+
+class DIContainer:
+    def __init__(self):
+        self._services: Dict[type, Any] = {}
+        self._factories: Dict[type, Callable] = {}
+        
+    def register_singleton(self, interface: Type[T], implementation: T) -> None:
+        """Registra una instancia única (singleton)"""
+        self._services[interface] = implementation
+    
+    def register_factory(self, interface: Type[T], factory: Callable[[], T]) -> None:
+        """Registra una factory para crear nuevas instancias"""
+        self._factories[interface] = factory
+    
+    def get(self, interface: Type[T]) -> T:
+        """Resuelve una dependencia"""
+        if interface in self._services:
+            return self._services[interface]
+        
+        if interface in self._factories:
+            return self._factories[interface]()
+            
+        raise ValueError(f"Servicio {interface.__name__} no registrado")
+    
+    def get_logger(self, name: str) -> logging.Logger:
+        """Factory method para loggers"""
+        return logging.getLogger(name)
+
+# Instancia global del contenedor
+container = DIContainer()
+</code></pre>
+
+          <h3>4.3 Configuración de logging</h3>
+          <pre><button class="copy" data-copy="#logging-config">Copiar</button><code id="logging-config"># core/logging_config.py
+import logging
+import json
+import os
+from typing import Dict, Any
+
+def setup_logging(config_path: str = "config/logging.json") -> None:
+    """Configura el sistema de logging de la aplicación"""
+    
+    # Configuración por defecto si no existe el archivo
+    default_config = {
+        "version": 1,
+        "formatters": {
+            "detailed": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
+            },
+            "simple": {
+                "format": "%(levelname)s - %(message)s"
+            }
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "level": "INFO",
+                "formatter": "simple",
+                "stream": "ext://sys.stdout"
+            },
+            "file": {
+                "class": "logging.FileHandler",
+                "level": "DEBUG",
+                "formatter": "detailed",
+                "filename": "app.log",
+                "mode": "a"
+            }
+        },
+        "loggers": {
+            "tcp_server": {"level": "DEBUG"},
+            "tcp_client": {"level": "DEBUG"},
+            "api": {"level": "INFO"}
+        },
+        "root": {
+            "level": "INFO",
+            "handlers": ["console", "file"]
+        }
+    }
+    
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+    else:
+        config = default_config
+        # Crear directorio config si no existe
+        os.makedirs(os.path.dirname(config_path), exist_ok=True)
+        with open(config_path, 'w') as f:
+            json.dump(config, f, indent=2)
+    
+    logging.config.dictConfig(config)
+</code></pre>
+
+          <h3>4.4 Excepciones personalizadas</h3>
+          <pre><button class="copy" data-copy="#exceptions">Copiar</button><code id="exceptions"># core/exceptions.py
+class SocketError(Exception):
+    """Base exception para errores de socket"""
+    pass
+
+class ConnectionTimeoutError(SocketError):
+    """Error por timeout de conexión"""
+    pass
+
+class MessageTooLongError(SocketError):
+    """Mensaje excede límites"""
+    pass
+
+class ServerNotAvailableError(SocketError):
+    """Servidor no disponible"""
+    pass
+</code></pre>
+
+          <h3>4.5 Configuración centralizada</h3>
+          <pre><button class="copy" data-copy="#config-service">Copiar</button><code id="config-service"># core/config.py
+import os
+from typing import Optional
+from .contracts import IConfigService
+
+class ConfigService(IConfigService):
+    """Servicio de configuración que lee de variables de entorno"""
+    
+    def __init__(self):
+        self._defaults = {
+            "ECHO_HOST": "127.0.0.1",
+            "ECHO_PORT": "5000",
+            "UDP_PORT": "5001",
+            "API_PORT": "8000",
+            "TIMEOUT_SECONDS": "5.0",
+            "MAX_MESSAGE_LENGTH": "1024"
+        }
+    
+    def get(self, key: str, default: Optional[str] = None) -> Optional[str]:
+        return os.getenv(key, default or self._defaults.get(key))
+    
+    def get_int(self, key: str, default: int = 0) -> int:
+        value = self.get(key, str(default))
+        return int(value) if value else default
+    
+    def get_float(self, key: str, default: float = 0.0) -> float:
+        value = self.get(key, str(default))
+        return float(value) if value else default
+</code></pre>
+        </section>
+
+        <section id="tcp">
+          <h2>5) TCP robusto con DI y logging</h2>
+          
+          <h3>5.1 Cliente TCP con manejo de errores</h3>
+          <pre><button class="copy" data-copy="#tcp-client-robust">Copiar</button><code id="tcp-client-robust"># tcp_client/client.py
+import asyncio
+import logging
+from typing import Optional
+from core.contracts import ITcpEchoClient, IConfigService
+from core.exceptions import ConnectionTimeoutError, MessageTooLongError
+from core.container import container
+
+class TcpEchoClient(ITcpEchoClient):
+    def __init__(self, config: Optional[IConfigService] = None):
+        self.config = config or container.get(IConfigService)
+        self.logger = logging.getLogger(__name__)
+        self.max_message_length = self.config.get_int("MAX_MESSAGE_LENGTH", 1024)
+    
+    async def echo(self, host: str, port: int, message: str, timeout: float = 5.0) -> str:
+        if len(message.encode('utf-8')) > self.max_message_length:
+            raise MessageTooLongError(f"Message too long: {len(message)} bytes")
+        
+        self.logger.info("Connecting to %s:%d", host, port)
+        
+        try:
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(host, port), 
+                timeout=timeout
+            )
+            
+            # Enviar mensaje
+            writer.write(message.encode('utf-8'))
+            await writer.drain()
+            
+            # Leer respuesta con timeout
+            data = await asyncio.wait_for(
+                reader.read(1024), 
+                timeout=timeout
+            )
+            
+            response = data.decode('utf-8')
+            self.logger.info("Received echo: %s", response[:50] + "..." if len(response) > 50 else response)
+            
+            return response
+            
+        except asyncio.TimeoutError:
+            self.logger.error("Connection timeout to %s:%d after %fs", host, port, timeout)
+            raise ConnectionTimeoutError(f"Timeout connecting to {host}:{port}")
+        except ConnectionRefusedError:
+            self.logger.error("Connection refused by %s:%d", host, port)
+            raise
+        except Exception as e:
+            self.logger.error("Unexpected error: %s", str(e))
+            raise
+        finally:
+            if 'writer' in locals():
+                writer.close()
+                await writer.wait_closed()
+
+# CLI con DI
+if __name__ == "__main__":
+    import sys
+    from core.config import ConfigService
+    from core.logging_config import setup_logging
+    
+    setup_logging()
+    container.register_singleton(IConfigService, ConfigService())
+    
+    host = sys.argv[1] if len(sys.argv) > 1 else "127.0.0.1"
+    port = int(sys.argv[2]) if len(sys.argv) > 2 else 5000
+    msg = sys.argv[3] if len(sys.argv) > 3 else "hola"
+    
+    client = TcpEchoClient()
+    echo = asyncio.run(client.echo(host, port, msg))
+    print(f"[CLI] Echo: {echo}")
+</code></pre>
+
+          <h3>5.2 Servidor TCP con concurrencia y logging</h3>
+          <pre><button class="copy" data-copy="#tcp-server-robust">Copiar</button><code id="tcp-server-robust"># tcp_server/server.py
+import asyncio
+import logging
+import signal
+from typing import Optional, Set
+from core.contracts import ITcpEchoServer, IConfigService
+from core.container import container
+
+class TcpEchoServer(ITcpEchoServer):
+    def __init__(self, config: Optional[IConfigService] = None):
+        self.config = config or container.get(IConfigService)
+        self.logger = logging.getLogger(__name__)
+        self.active_connections: Set[asyncio.Task] = set()
+        self.shutdown_event = asyncio.Event()
+    
+    async def _handle_client(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        addr = writer.get_extra_info('peername')
+        self.logger.info("New connection from %s", addr)
+        
+        try:
+            while not self.shutdown_event.is_set():
+                try:
+                    # Leer con timeout para permitir shutdown graceful
+                    data = await asyncio.wait_for(reader.read(1024), timeout=1.0)
+                    if not data:
+                        break
+                    
+                    message = data.decode('utf-8')
+                    self.logger.debug("Received from %s: %s", addr, message[:100])
+                    
+                    # Echo back
+                    writer.write(data)
+                    await writer.drain()
+                    
+                except asyncio.TimeoutError:
+                    # Timeout normal para permitir check de shutdown
+                    continue
+                except UnicodeDecodeError:
+                    self.logger.warning("Invalid UTF-8 from %s", addr)
+                    break
+                    
+        except ConnectionResetError:
+            self.logger.info("Client %s disconnected abruptly", addr)
+        except Exception as e:
+            self.logger.error("Error handling client %s: %s", addr, e)
+        finally:
+            writer.close()
+            await writer.wait_closed()
+            self.logger.info("Connection %s closed", addr)
+    
+    async def run(self, port: int = 5000) -> None:
+        server = await asyncio.start_server(
+            self._handle_client, 
+            '0.0.0.0', 
+            port
+        )
+        
+        addrs = ', '.join(str(sock.getsockname()) for sock in server.sockets)
+        self.logger.info("TCP server listening on %s", addrs)
+        
+        # Setup signal handlers para shutdown graceful
+        loop = asyncio.get_running_loop()
+        for sig in [signal.SIGTERM, signal.SIGINT]:
+            loop.add_signal_handler(sig, self._shutdown)
+        
+        try:
+            async with server:
+                await self.shutdown_event.wait()
+        finally:
+            self.logger.info("Shutting down server...")
+            server.close()
+            await server.wait_closed()
+            
+            # Esperar que terminen las conexiones activas
+            if self.active_connections:
+                self.logger.info("Waiting for %d active connections...", len(self.active_connections))
+                await asyncio.gather(*self.active_connections, return_exceptions=True)
+            
+            self.logger.info("Server shutdown complete")
+    
+    def _shutdown(self):
+        self.logger.info("Shutdown signal received")
+        self.shutdown_event.set()
+
+# Entry point con configuración completa
+if __name__ == "__main__":
+    import sys
+    from core.config import ConfigService
+    from core.logging_config import setup_logging
+    
+    setup_logging()
+    container.register_singleton(IConfigService, ConfigService())
+    
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5000
+    server = TcpEchoServer()
+    
+    try:
+        asyncio.run(server.run(port))
+    except KeyboardInterrupt:
+        print("\nServer stopped by user")
+</code></pre>
+        </section>
+
+        <section id="udp">
+          <h2>6) UDP con logging estructurado</h2>
+          <pre><button class="copy" data-copy="#udp-server-enhanced">Copiar</button><code id="udp-server-enhanced"># udp_server/server.py
+import asyncio
+import logging
+import signal
+from typing import Optional
+from core.contracts import IConfigService
+from core.container import container
+
+class EchoProtocol(asyncio.DatagramProtocol):
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.transport = None
+        self.message_count = 0
+    
+    def connection_made(self, transport):
+        self.transport = transport
+        sockname = transport.get_extra_info('sockname')
+        self.logger.info("UDP server listening on %s", sockname)
+    
+    def datagram_received(self, data, addr):
+        self.message_count += 1
+        try:
+            message = data.decode('utf-8')
+            self.logger.debug("Message #%d from %s: %s", self.message_count, addr, message[:100])
+            self.transport.sendto(data, addr)
+        except UnicodeDecodeError:
+            self.logger.warning("Invalid UTF-8 datagram from %s", addr)
+        except Exception as e:
+            self.logger.error("Error processing datagram from %s: %s", addr, e)
+    
+    def error_received(self, exc):
+        self.logger.error("UDP error received: %s", exc)
+
+class UdpEchoServer:
+    def __init__(self, config: Optional[IConfigService] = None):
+        self.config = config or container.get(IConfigService)
+        self.logger = logging.getLogger(__name__)
+        self.shutdown_event = asyncio.Event()
+    
+    async def run(self, port: int = 5001) -> None:
+        loop = asyncio.get_running_loop()
+        
+        # Setup signal handlers
+        for sig in [signal.SIGTERM, signal.SIGINT]:
+            loop.add_signal_handler(sig, self._shutdown)
+        
+        transport, protocol = await loop.create_datagram_endpoint(
+            lambda: EchoProtocol(), 
+            local_addr=('0.0.0.0', port)
+        )
+        
+        try:
+            await self.shutdown_event.wait()
+        finally:
+            self.logger.info("Shutting down UDP server...")
+            transport.close()
+            self.logger.info("UDP server shutdown complete")
+    
+    def _shutdown(self):
+        self.logger.info("UDP shutdown signal received")
+        self.shutdown_event.set()
+
+if __name__ == "__main__":
+    import sys
+    from core.config import ConfigService
+    from core.logging_config import setup_logging
+    
+    setup_logging()
+    container.register_singleton(IConfigService, ConfigService())
+    
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5001
+    server = UdpEchoServer()
+    
+    try:
+        asyncio.run(server.run(port))
+    except KeyboardInterrupt:
+        print("\nUDP Server stopped by user")
+</code></pre>
+        </section>
+
+        <section id="api">
+          <h2>7) FastAPI con Dependency Injection</h2>
+          <pre><button class="copy" data-copy="#api-with-di">Copiar</button><code id="api-with-di"># api/main.py
+from fastapi import FastAPI, HTTPException, Depends
+from pydantic import BaseModel, Field
+import logging
+from typing import Optional
+from core.contracts import ITcpEchoClient, IConfigService
+from core.container import container
+from core.exceptions import ConnectionTimeoutError, MessageTooLongError
+from core.logging_config import setup_logging
+from core.config import ConfigService
+from tcp_client.client import TcpEchoClient
+
+# Configurar aplicación
+setup_logging()
+container.register_singleton(IConfigService, ConfigService())
+container.register_factory(ITcpEchoClient, lambda: TcpEchoClient())
+
+app = FastAPI(
+    title="SocketsPy Pro Echo API",
+    description="API robusta para eco TCP con DI y logging",
+    version="2.0.0"
+)
+
+logger = logging.getLogger(__name__)
+
+# Modelos Pydantic
+class EchoRequest(BaseModel):
+    message: str = Field(..., min_length=1, max_length=1000, description="Mensaje a enviar")
+    timeout: Optional[float] = Field(5.0, ge=0.1, le=30.0, description="Timeout en segundos")
+
+class EchoResponse(BaseModel):
+    echoed: str
+    message_length: int
+    success: bool = True
+
+class ErrorResponse(BaseModel):
+    error: str
+    detail: str
+    success: bool = False
+
+# Dependency injection para FastAPI
+def get_tcp_client() -> ITcpEchoClient:
+    return container.get(ITcpEchoClient)
+
+def get_config() -> IConfigService:
+    return container.get(IConfigService)
+
+@app.post("/echo", response_model=EchoResponse, responses={
+    400: {"model": ErrorResponse, "description": "Mensaje inválido"},
+    503: {"model": ErrorResponse, "description": "Servicio no disponible"},
+    408: {"model": ErrorResponse, "description": "Timeout"}
+})
+async def echo_message(
+    request: EchoRequest,
+    client: ITcpEchoClient = Depends(get_tcp_client),
+    config: IConfigService = Depends(get_config)
+):
+    """Envía un mensaje al servidor TCP y retorna el eco"""
+    
+    host = config.get("ECHO_HOST", "127.0.0.1")
+    port = config.get_int("ECHO_PORT", 5000)
+    
+    logger.info("Processing echo request: %s chars to %s:%d", 
+                len(request.message), host, port)
+    
+    try:
+        echoed = await client.echo(host, port, request.message, request.timeout)
+        
+        logger.info("Echo successful: %s chars returned", len(echoed))
+        
+        return EchoResponse(
+            echoed=echoed,
+            message_length=len(echoed)
+        )
+        
+    except ConnectionTimeoutError as e:
+        logger.error("Timeout error: %s", str(e))
+        raise HTTPException(
+            status_code=408, 
+            detail={"error": "timeout", "detail": str(e), "success": False}
+        )
+    
+    except MessageTooLongError as e:
+        logger.error("Message too long: %s", str(e))
+        raise HTTPException(
+            status_code=400, 
+            detail={"error": "message_too_long", "detail": str(e), "success": False}
+        )
+    
+    except ConnectionRefusedError:
+        logger.error("TCP server not available at %s:%d", host, port)
+        raise HTTPException(
+            status_code=503, 
+            detail={"error": "server_unavailable", "detail": f"Cannot connect to {host}:{port}", "success": False}
+        )
+    
+    except Exception as e:
+        logger.error("Unexpected error: %s", str(e))
+        raise HTTPException(
+            status_code=500, 
+            detail={"error": "internal_error", "detail": "Internal server error", "success": False}
+        )
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "SocketsPy Pro API"}
+
+@app.get("/config")
+async def get_configuration(config: IConfigService = Depends(get_config)):
+    """Retorna configuración actual (sin datos sensibles)"""
+    return {
+        "echo_host": config.get("ECHO_HOST"),
+        "echo_port": config.get_int("ECHO_PORT"),
+        "max_message_length": config.get_int("MAX_MESSAGE_LENGTH")
+    }
+
+# Ejecutar con: uvicorn api.main:app --reload --port 8000
+</code></pre>
+        </section>
+
+        <section id="tests">
+          <h2>8) Testing completo con pytest</h2>
+          
+          <h3>8.1 Configuración de pytest</h3>
+          <pre><button class="copy" data-copy="#conftest">Copiar</button><code id="conftest"># tests/conftest.py
+import pytest
+import asyncio
+import logging
+from unittest.mock import AsyncMock, MagicMock
+from core.container import DIContainer
+from core.contracts import ITcpEchoClient, IConfigService
+from core.config import ConfigService
+
+# Configurar logging para tests
+logging.basicConfig(level=logging.DEBUG)
+
+@pytest.fixture(scope="session")
+def event_loop():
+    """Create an instance of the default event loop for the test session."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+@pytest.fixture
+def mock_config():
+    """Mock de configuración para tests"""
+    config = MagicMock(spec=IConfigService)
+    config.get.side_effect = lambda key, default=None: {
+        "ECHO_HOST": "127.0.0.1",
+        "ECHO_PORT": "5000",
+        "TIMEOUT_SECONDS": "5.0",
+        "MAX_MESSAGE_LENGTH": "1024"
+    }.get(key, default)
+    config.get_int.side_effect = lambda key, default=0: int(config.get(key, str(default)))
+    config.get_float.side_effect = lambda key, default=0.0: float(config.get(key, str(default)))
+    return config
+
+@pytest.fixture
+def container_with_mocks(mock_config):
+    """Contenedor DI con mocks para testing"""
+    container = DIContainer()
+    container.register_singleton(IConfigService, mock_config)
+    return container
+</code></pre>
+
+          <h3>8.2 Tests del cliente TCP</h3>
+          <pre><button class="copy" data-copy="#test-tcp">Copiar</button><code id="test-tcp"># tests/test_tcp.py
+import pytest
+import asyncio
+from unittest.mock import AsyncMock, patch, MagicMock
+from tcp_client.client import TcpEchoClient
+from core.exceptions import ConnectionTimeoutError, MessageTooLongError
+
+@pytest.mark.asyncio
+class TestTcpEchoClient:
+    
+    async def test_successful_echo(self, mock_config):
+        """Test eco exitoso"""
+        client = TcpEchoClient(mock_config)
+        
+        # Mock asyncio.open_connection
+        mock_reader = AsyncMock()
+        mock_writer = AsyncMock()
+        mock_reader.read.return_value = b"hello"
+        
+        with patch('asyncio.open_connection', return_value=(mock_reader, mock_writer)):
+            with patch('asyncio.wait_for', side_effect=[
+                (mock_reader, mock_writer),  # Primera llamada (conexión)
+                b"hello"  # Segunda llamada (lectura)
+            ]):
+                result = await client.echo("127.0.0.1", 5000, "hello")
+                
+                assert result == "hello"
+                mock_writer.write.assert_called_once_with(b"hello")
+                mock_writer.drain.assert_called_once()
+    
+    async def test_connection_timeout(self, mock_config):
+        """Test timeout de conexión"""
+        client = TcpEchoClient(mock_config)
+        
+        with patch('asyncio.wait_for', side_effect=asyncio.TimeoutError()):
+            with pytest.raises(ConnectionTimeoutError):
+                await client.echo("127.0.0.1", 5000, "hello", timeout=1.0)
+    
+    async def test_message_too_long(self, mock_config):
+        """Test mensaje demasiado largo"""
+        mock_config.get_int.return_value = 10  # Límite muy bajo
+        client = TcpEchoClient(mock_config)
+        
+        with pytest.raises(MessageTooLongError):
+            await client.echo("127.0.0.1", 5000, "mensaje muy largo", timeout=1.0)
+    
+    async def test_connection_refused(self, mock_config):
+        """Test servidor no disponible"""
+        client = TcpEchoClient(mock_config)
+        
+        with patch('asyncio.wait_for', side_effect=ConnectionRefusedError()):
+            with pytest.raises(ConnectionRefusedError):
+                await client.echo("127.0.0.1", 5000, "hello")
+    
+    async def test_cleanup_on_error(self, mock_config):
+        """Test que se cierre la conexión aún con error"""
+        client = TcpEchoClient(mock_config)
+        
+        mock_reader = AsyncMock()
+        mock_writer = AsyncMock()
+        
+        with patch('asyncio.open_connection', return_value=(mock_reader, mock_writer)):
+            with patch('asyncio.wait_for', side_effect=[
+                (mock_reader, mock_writer),  # Conexión exitosa
+                Exception("Error de prueba")  # Error en lectura
+            ]):
+                with pytest.raises(Exception):
+                    await client.echo("127.0.0.1", 5000, "hello")
+                
+                # Verificar que se cerró la conexión
+                mock_writer.close.assert_called_once()
+                mock_writer.wait_closed.assert_called_once()
+</code></pre>
+
+          <h3>8.3 Tests de la API</h3>
+          <pre><button class="copy" data-copy="#test-api">Copiar</button><code id="test-api"># tests/test_api.py
+import pytest
+from httpx import AsyncClient
+from unittest.mock import AsyncMock, patch
+from api.main import app
+from core.exceptions import ConnectionTimeoutError, MessageTooLongError
+
+@pytest.mark.asyncio
+class TestEchoAPI:
+    
+    async def test_successful_echo_endpoint(self):
+        """Test endpoint /echo exitoso"""
+        mock_client = AsyncMock()
+        mock_client.echo.return_value = "hello world"
+        
+        with patch('api.main.container.get', return_value=mock_client):
+            async with AsyncClient(app=app, base_url="http://test") as client:
+                response = await client.post("/echo", json={
+                    "message": "hello world",
+                    "timeout": 5.0
+                })
+                
+                assert response.status_code == 200
+                data = response.json()
+                assert data["echoed"] == "hello world"
+                assert data["message_length"] == 11
+                assert data["success"] is True
+    
+    async def test_echo_timeout_error(self):
+        """Test manejo de timeout en API"""
+        mock_client = AsyncMock()
+        mock_client.echo.side_effect = ConnectionTimeoutError("Timeout")
+        
+        with patch('api.main.container.get', return_value=mock_client):
+            async with AsyncClient(app=app, base_url="http://test") as client:
+                response = await client.post("/echo", json={
+                    "message": "test",
+                    "timeout": 1.0
+                })
+                
+                assert response.status_code == 408
+                data = response.json()["detail"]
+                assert data["error"] == "timeout"
+                assert data["success"] is False
+    
+    async def test_echo_message_too_long(self):
+        """Test mensaje demasiado largo"""
+        mock_client = AsyncMock()
+        mock_client.echo.side_effect = MessageTooLongError("Too long")
+        
+        with patch('api.main.container.get', return_value=mock_client):
+            async with AsyncClient(app=app, base_url="http://test") as client:
+                response = await client.post("/echo", json={
+                    "message": "test message",
+                    "timeout": 5.0
+                })
+                
+                assert response.status_code == 400
+                data = response.json()["detail"]
+                assert data["error"] == "message_too_long"
+    
+    async def test_health_endpoint(self):
+        """Test endpoint de salud"""
+        async with AsyncClient(app=app, base_url="http://test") as client:
+            response = await client.get("/health")
+            
+            assert response.status_code == 200
+            data = response.json()
+            assert data["status"] == "healthy"
+    
+    async def test_config_endpoint(self):
+        """Test endpoint de configuración"""
+        mock_config = AsyncMock()
+        mock_config.get.return_value = "127.0.0.1"
+        mock_config.get_int.return_value = 5000
+        
+        with patch('api.main.container.get', return_value=mock_config):
+            async with AsyncClient(app=app, base_url="http://test") as client:
+                response = await client.get("/config")
+                
+                assert response.status_code == 200
+                data = response.json()
+                assert "echo_host" in data
+                assert "echo_port" in data
+
+# Ejecutar con: pytest tests/test_api.py -v
+</code></pre>
+        </section>
+
+        <section id="validacion">
+          <h2>9) Validación del aprendizaje</h2>
+          <div class="task"><input type="checkbox"/> <label>Implementé dependency injection con contenedor y tipos</label></div>
+          <div class="task"><input type="checkbox"/> <label>Configuré logging estructurado con archivos JSON</label></div>
+          <div class="task"><input type="checkbox"/> <label>Manejé timeouts y excepciones personalizadas</label></div>
+          <div class="task"><input type="checkbox"/> <label>Creé tests con mocks y casos de error</label></div>
+          <div class="task"><input type="checkbox"/> <label>API con manejo de errores HTTP apropiados</label></div>
+          <div class="task"><input type="checkbox"/> <label>Servidor con shutdown graceful y manejo de señales</label></div>
+
+          <h3>Preguntas de reflexión</h3>
+          <ol>
+            <li>¿Cómo te ayudó la DI a escribir pruebas más fáciles? Compara con la versión monolítica</li>
+            <li>¿Qué ventajas proporciona el logging estructurado para depuración y monitoreo?</li>
+            <li>¿Cómo mejora la robustez el manejo de timeouts y excepciones específicas?</li>
+            <li>¿Qué patrones de la versión C# encuentras equivalentes en esta implementación Python?</li>
+          </ol>
+        </section>
+
+        <section id="troubleshooting">
+          <h2>10) Troubleshooting avanzado</h2>
+          <details open>
+            <summary>Errores de importación con DI</summary>
+            <div class="tip warn">Asegúrate de que PYTHONPATH incluye el directorio raíz. Usa <code>python -m</code> para ejecutar módulos.</div>
+          </details>
+          <details>
+            <summary>Tests fallan por dependencias</summary>
+            <ul>
+              <li>Verifica que pytest-asyncio esté instalado</li>
+              <li>Usa fixtures para aislar el estado entre tests</li>
+              <li>Mockea todas las dependencias externas</li>
+            </ul>
+          </details>
+          <details>
+            <summary>Logging no aparece en tests</summary>
+            <div class="tip">Configura logging en conftest.py y usa <code>pytest -s</code> para ver stdout</div>
+          </details>
+        </section>
+
+        <section id="entregables">
+          <h2>11) Entregables y rúbrica</h2>
+          <p><strong>Entrega:</strong> <code>Fase2_Python_Pro_Nombre.zip</code> con:</p>
+          <ul>
+            <li>Proyecto completo con estructura de capas</li>
+            <li>Configuración de logging (archivos JSON)</li>
+            <li>Suite de pruebas con coverage >80%</li>
+            <li>Documentación de decisiones arquitectónicas</li>
+          </ul>
+          
+          <table>
+            <thead>
+              <tr><th>Criterio</th><th>Excelente (100%)</th><th>Adecuado (85%)</th><th>Básico (70%)</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>DI y arquitectura</td>
+                <td>DI correcta, capas bien definidas, configuración centralizada</td>
+                <td>DI básica funcionando, algunas capas claras</td>
+                <td>Separación mínima, DI incompleta</td>
+              </tr>
+              <tr>
+                <td>Robustez</td>
+                <td>Timeouts, excepciones, logging estructurado, shutdown graceful</td>
+                <td>Manejo básico de errores y logging</td>
+                <td>Funcionalidad mínima sin robustez</td>
+              </tr>
+              <tr>
+                <td>Testing</td>
+                <td>Unit tests + integration tests, mocks, casos de error</td>
+                <td>Tests básicos funcionando</td>
+                <td>Pocos tests o sin casos de error</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <footer class="small">
+          Arquitectura de Software para Sockets © 2025 · Fase 2 Python Mejorada con DI, Logging y Robustez · Nivel empresarial
+        </footer>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const btn = document.getElementById('theme');
+    const current = localStorage.getItem('phase2py-pro-theme')||'dark';
+    if(current==='light') document.documentElement.setAttribute('data-theme','light');
+    btn.addEventListener('click',()=>{
+      const isLight = document.documentElement.getAttribute('data-theme')==='light';
+      document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      localStorage.setItem('phase2py-pro-theme', isLight ? 'dark' : 'light');
+    });
+
+    // Copiar código
+    document.querySelectorAll('.copy').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        const sel = b.getAttribute('data-copy');
+        const code = document.querySelector(sel)?.innerText || '';
+        try{ await navigator.clipboard.writeText(code); b.textContent='Copiado ✓'; setTimeout(()=>b.textContent='Copiar', 1200);}catch(e){ b.textContent='¡Ups!'; setTimeout(()=>b.textContent='Copiar', 1200);}    
+      })
+    });
+  </script>
+</body>
+</html>
