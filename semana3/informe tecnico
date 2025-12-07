@@ -1,24 +1,37 @@
-Informe Técnico - Semana 3 (Fase 2)
-Reflexión sobre Arquitectura y Patrones
-1. ¿Cómo te ayudó la DI (Inyección de Dependencias) a escribir pruebas más fáciles?
+# Informe Técnico - Semana 3 (Fase 2)
+
+## Reflexión sobre Arquitectura y Patrones
+
+### 1. ¿Cómo te ayudó la DI (Inyección de Dependencias) a escribir pruebas más fáciles?
+
 La Inyección de Dependencias permitió desacoplar los componentes principales (como el cliente TCP o la configuración) de sus implementaciones concretas. En lugar de instanciar TcpEchoClient directamente dentro de la API, se inyecta una interfaz ITcpEchoClient. Esto facilitó enormemente las pruebas unitarias, ya que pudimos inyectar un Mock del cliente TCP que simula respuestas o errores sin necesidad de levantar un servidor real. En la versión monolítica, hubiéramos tenido que "monkey-patch" las librerías de socket o levantar servidores reales, lo cual es lento y propenso a errores.
 
-2. ¿Qué ventajas proporciona el logging estructurado para depuración y monitoreo?
+### 2. ¿Qué ventajas proporciona el logging estructurado para depuración y monitoreo?
+
 El logging estructurado (JSON) permite que los logs sean procesados automáticamente por herramientas de monitoreo (como ELK Stack, Datadog o CloudWatch). A diferencia del texto plano, los campos como level, timestamp, module y message son fácilmente indexables. Esto permite filtrar errores por severidad, buscar trazas específicas por ID de correlación o generar métricas de frecuencia de errores sin necesidad de expresiones regulares complejas.
 
-3. ¿Cómo mejora la robustez el manejo de timeouts y excepciones específicas?
+### 3. ¿Cómo mejora la robustez el manejo de timeouts y excepciones específicas?
+
 El manejo explícito de asyncio.wait_for con timeouts evita que el servidor o el cliente se queden bloqueados indefinidamente esperando una respuesta de red que nunca llegará (por ejemplo, si el cable se desconecta). Las excepciones específicas como ConnectionTimeoutError o MessageTooLongError permiten al sistema reaccionar de forma granular: se puede reintentar una conexión por timeout, pero rechazar inmediatamente un mensaje demasiado largo, mejorando la experiencia del usuario y la estabilidad del sistema.
 
-4. ¿Qué patrones de la versión C# encuentras equivalentes en esta implementación Python?
-Interfaces/Protocolos: El uso de ABC (Abstract Base Classes) en Python (ITcpEchoServer) es equivalente a las interface de C# (ITcpEchoServer).
-DI Container: La clase DIContainer implementada manualmente en Python cumple la misma función que IServiceCollection / IServiceProvider en .NET.
-Async/Await: El modelo de corrutinas de Python es sintáctica y conceptualmente muy similar al modelo de tareas asíncronas de C#.
-Reflexión de Diseño (API REST)
-Decisión de Diseño (PUT vs PATCH): Se decidió que PUT solo actualiza recursos existentes y devuelve 404 si no se encuentra, para mantener la semántica de reemplazo estricto.
-Códigos HTTP: Se estandarizó el uso de:
-200 OK: Éxito general.
-201 Created: Creación de recursos.
-400 Bad Request: Errores de validación de entrada.
-404 Not Found: Recurso no encontrado.
-503 Service Unavailable: Cuando el backend TCP no responde.
-Mejoras Identificadas: Sería útil incluir un código de error interno estandarizado en el cuerpo de la respuesta JSON para facilitar el manejo de errores en el frontend (e.g., ERR_USER_INVALID).
+### 4. ¿Qué patrones de la versión C# encuentras equivalentes en esta implementación Python?
+
+- **Interfaces/Protocolos**: El uso de ABC (Abstract Base Classes) en Python (ITcpEchoServer) es equivalente a las interface de C# (ITcpEchoServer).
+- **DI Container**: La clase DIContainer implementada manualmente en Python cumple la misma función que IServiceCollection / IServiceProvider en .NET.
+- **Async/Await**: El modelo de corrutinas de Python es sintáctica y conceptualmente muy similar al modelo de tareas asíncronas de C#.
+
+## Reflexión de Diseño (API REST)
+
+### Decisión de Diseño (PUT vs PATCH)
+Se decidió que PUT solo actualiza recursos existentes y devuelve 404 si no se encuentra, para mantener la semántica de reemplazo estricto.
+
+### Códigos HTTP
+Se estandarizó el uso de:
+- **200 OK**: Éxito general.
+- **201 Created**: Creación de recursos.
+- **400 Bad Request**: Errores de validación de entrada.
+- **404 Not Found**: Recurso no encontrado.
+- **503 Service Unavailable**: Cuando el backend TCP no responde.
+
+### Mejoras Identificadas
+Sería útil incluir un código de error interno estandarizado en el cuerpo de la respuesta JSON para facilitar el manejo de errores en el frontend (e.g., ERR_USER_INVALID).
