@@ -90,6 +90,9 @@ tmp/
 *.cert
 *.crt
 
+# Excluir archivos markdown de gitignore
+!*.md
+
 # Cache de npm (si usaras Node.js)
 node_modules/
 npm-debug.log*
