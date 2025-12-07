@@ -1,0 +1,23 @@
+# Bitácora de Decisiones Arquitectónicas
+
+- **Recurso principal:** products (productos)
+- **Estructura de endpoints:**
+  - GET /products
+  - GET /products/{id}
+  - POST /products
+  - PUT /products/{id}
+  - DELETE /products/{id}
+- **Validaciones:**
+  - nombre no vacío
+  - precio >= 0
+  - stock >= 0
+- **Formato de errores:**
+  - Siempre JSON: {"error": "mensaje"}
+- **Códigos HTTP:**
+  - 200 OK para lecturas y actualizaciones
+  - 201 Created para creación
+  - 204 No Content para borrado exitoso
+  - 400 para errores de validación
+  - 404 para recursos no encontrados
+- **Decisión difícil:** Elegir si PUT debe crear o solo actualizar. Se decidió devolver 404 si no existe.
+- **Mejoras futuras:** Persistencia en base de datos, autenticación, paginación, filtros.

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMarket - Central Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-bg: #0f172a;
+            --card-bg: #ffffff;
+            --body-bg: #f1f5f9;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--body-bg);
+            color: #334155;
+        }
+        .navbar {
+            background-color: var(--card-bg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            border: 1px solid rgba(0,0,0,0.05);
+            height: 100%;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .content-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-title {
+            font-weight: 600;
+            margin: 0;
+            color: #1e293b;
+        }
+        .table thead th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .notification-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: flex-start;
+            transition: background 0.2s;
+        }
+        .notification-item:hover {
+            background-color: #f8fafc;
+        }
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        .notification-icon {
+            background-color: #dcfce7;
+            color: #166534;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        .notification-content {
+            flex-grow: 1;
+        }
+        .notification-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #334155;
+        }
+        .notification-details {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .notification-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .badge-stock {
+            padding: 0.35em 0.65em;
+            font-weight: 500;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-grid-3x3-gap-fill me-2"></i>EcoMarket<span class="text-dark fw-light">Central</span>
+            </a>
+            
+            <div class="d-flex align-items-center gap-3">
+                <div id="userSection" style="display: none;" class="align-items-center">
+                    <div class="d-flex align-items-center me-3">
+                        <div class="bg-light rounded-circle p-2 me-2 text-primary">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div>
+                            <small class="d-block text-muted" style="line-height: 1;">Bienvenido,</small>
+                            <span class="fw-bold" id="usernameDisplay" style="font-size: 0.9rem;">Usuario</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-danger btn-sm" id="btnLogout">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </div>
+                <button class="btn btn-primary btn-sm px-4 rounded-pill" id="btnLogin" data-bs-toggle="modal" data-bs-target="#loginModal">
+                    Iniciar Sesión
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <!-- Stats Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <h2 class="fw-bold mb-1" id="totalProducts">0</h2>
+                    <p class="text-muted mb-0 small text-uppercase fw-bold">Total Productos</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-layers"></i>
+                    </div>
+                    <h2 class="fw-bold mb-1" id="totalStock">0</h2>
+                    <p class="text-muted mb-0 small text-uppercase fw-bold">Stock Global</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <h2 class="fw-bold mb-1" id="totalValue">$0.00</h2>
+                    <p class="text-muted mb-0 small text-uppercase fw-bold">Valor Inventario</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Central Inventory -->
+            <div class="col-lg-8">
+                <div class="content-card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="bi bi-database me-2 text-primary"></i>Inventario Maestro</h5>
+                        <button class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#productModal" id="btnAddProduct" style="display: none;">
+                            <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="formMsg" class="px-3 pt-3"></div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">ID</th>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th class="text-end pe-4">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryBody">
+                                    <!-- JS will populate this -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
+                        <small class="text-muted" id="centralPaginationInfo">Cargando...</small>
+                        <nav id="centralPagination">
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item"><button class="page-link border-0 text-secondary" onclick="CentralPagination.previousPage()"><i class="bi bi-chevron-left"></i></button></li>
+                                <li class="page-item"><button class="page-link border-0 text-secondary" onclick="CentralPagination.nextPage()"><i class="bi bi-chevron-right"></i></button></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Feed -->
+            <div class="col-lg-4">
+                <div class="content-card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="bi bi-activity me-2 text-warning"></i>Actividad en Vivo</h5>
+                        <span class="badge bg-warning text-dark rounded-pill" id="totalNotifications">0</span>
+                    </div>
+                    <div class="card-body p-0 notifications-body" style="max-height: 500px; overflow-y: auto;">
+                        <!-- JS will populate this -->
+                        <div class="text-center text-muted py-5">
+                            <div class="spinner-border spinner-border-sm text-secondary mb-2" role="status"></div>
+                            <p class="small mb-0">Conectando con sucursales...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Branch Inventory Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-info bg-opacity-10 text-info p-2 rounded me-3">
+                                <i class="bi bi-shop"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title">Gestión de Sucursales</h5>
+                                <small class="text-muted">Monitoreo y control de stock remoto</small>
+                            </div>
+                        </div>
+                        <select class="form-select w-auto border-0 bg-light fw-bold text-secondary" id="branchSelect">
+                            <option value="/api/sucursal">📍 Sucursal 1 (Norte)</option>
+                            <option value="http://localhost:8003">📍 Sucursal 2 (Sur)</option>
+                        </select>
+                        <button class="btn btn-info btn-sm text-white rounded-pill px-3 ms-3" data-bs-toggle="modal" data-bs-target="#addBranchProductModal" id="btnAddBranchProduct" style="display: none;">
+                            <i class="bi bi-plus-lg me-1"></i> Agregar a Sucursal
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="branchFormMsg" class="px-3 pt-3"></div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">ID</th>
+                                        <th>Producto</th>
+                                        <th>Precio Local</th>
+                                        <th>Stock Disponible</th>
+                                        <th class="text-end pe-4">Gestión</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="branchInventoryBody">
+                                    <!-- JS will populate this -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
+                        <small class="text-muted" id="branchPaginationInfo">Seleccione una sucursal</small>
+                        <nav id="branchPagination">
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item"><button class="page-link border-0 text-secondary" onclick="BranchPagination.previousPage()"><i class="bi bi-chevron-left"></i></button></li>
+                                <li class="page-item"><button class="page-link border-0 text-secondary" onclick="BranchPagination.nextPage()"><i class="bi bi-chevron-right"></i></button></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sales History (Collapsible or Bottom) -->
+        <div class="row mt-4 mb-5">
+            <div class="col-12">
+                <div class="content-card">
+                    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#salesCollapse" style="cursor: pointer;">
+                        <h5 class="card-title"><i class="bi bi-receipt me-2 text-secondary"></i>Registro Histórico de Ventas</h5>
+                        <i class="bi bi-chevron-down text-muted"></i>
+                    </div>
+                    <div class="collapse show" id="salesCollapse">
+                        <!-- Filters -->
+                        <div class="bg-light border-bottom p-3">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text border-0 bg-white"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control border-0" id="salesSearch" placeholder="Buscar por ID producto...">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select form-select-sm border-0" id="salesBranchFilter">
+                                        <option value="">Todas las Sucursales</option>
+                                        <!-- JS will populate -->
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="date" class="form-control form-control-sm border-0" id="salesDateFilter">
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="SalesManager.clearFilters()">
+                                        Limpiar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-4">Sucursal</th>
+                                            <th>Producto ID</th>
+                                            <th>Cantidad</th>
+                                            <th>Total</th>
+                                            <th>Fecha</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="salesBody">
+                                        <!-- JS will populate this -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
+                            <small class="text-muted" id="salesPaginationInfo">Cargando...</small>
+                            <nav id="salesPagination">
+                                <ul class="pagination pagination-sm mb-0">
+                                    <li class="page-item"><button class="page-link border-0 text-secondary" onclick="SalesPagination.previousPage()"><i class="bi bi-chevron-left"></i></button></li>
+                                    <li class="page-item"><button class="page-link border-0 text-secondary" onclick="SalesPagination.nextPage()"><i class="bi bi-chevron-right"></i></button></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-body p-5 text-center">
+                    <div class="mb-4 text-primary">
+                        <i class="bi bi-shield-lock display-4"></i>
+                    </div>
+                    <h4 class="mb-4 fw-bold">Acceso Administrativo</h4>
+                    <form id="loginForm">
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="loginUsername" placeholder="name@example.com" required>
+                            <label for="loginUsername">Correo Electrónico</label>
+                        </div>
+                        <div class="form-floating mb-4">
+                            <input type="password" class="form-control" id="loginPassword" placeholder="Password" required>
+                            <label for="loginPassword">Contraseña</label>
+                        </div>
+                        <div id="loginMessage" class="text-danger small mb-3"></div>
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">Ingresar al Sistema</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Nuevo Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="productForm">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted fw-bold">ID PRODUCTO</label>
+                            <input type="number" class="form-control bg-light border-0" id="productId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted fw-bold">NOMBRE</label>
+                            <input type="text" class="form-control bg-light border-0" id="productName" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label small text-muted fw-bold">PRECIO</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-0 bg-light">$</span>
+                                    <input type="number" step="0.01" class="form-control bg-light border-0" id="productPrice" required>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label small text-muted fw-bold">STOCK INICIAL</label>
+                                <input type="number" class="form-control bg-light border-0" id="productStock" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill mt-3">Guardar Producto</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Central Product Modal -->
+    <div class="modal fade" id="editCentralModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Editar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="editCentralForm">
+                        <input type="hidden" id="centralProductId">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted fw-bold">NOMBRE</label>
+                            <input type="text" class="form-control bg-light border-0" id="centralProductName" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label small text-muted fw-bold">PRECIO</label>
+                                <input type="number" step="0.01" class="form-control bg-light border-0" id="centralProductPrice" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label small text-muted fw-bold">STOCK</label>
+                                <input type="number" class="form-control bg-light border-0" id="centralProductStock" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill mt-3">Actualizar Datos</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Branch Product Modal -->
+    <div class="modal fade" id="editBranchModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Ajuste de Stock Remoto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-info small mb-3">
+                        <i class="bi bi-info-circle me-1"></i> Modificando inventario en tiempo real en la sucursal.
+                    </div>
+                    <form id="editBranchForm">
+                        <input type="hidden" id="branchProductId">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted fw-bold">PRODUCTO</label>
+                            <input type="text" class="form-control-plaintext fw-bold" id="branchProductName" readonly>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label small text-muted fw-bold">PRECIO ACTUAL</label>
+                                <input type="number" step="0.01" class="form-control bg-light border-0 fw-bold text-primary" id="branchProductPrice" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label small text-muted fw-bold">NUEVO STOCK</label>
+                                <input type="number" class="form-control bg-light border-0 fw-bold text-primary" id="branchProductStock" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-info text-white w-100 py-2 rounded-pill mt-3">Confirmar Ajuste</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Branch Product Modal -->
+    <div class="modal fade" id="addBranchProductModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Agregar Producto a Sucursal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="addBranchProductForm">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted fw-bold">ID PRODUCTO</label>
+                            <input type="number" class="form-control bg-light border-0" id="newBranchProductId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted fw-bold">NOMBRE</label>
+                            <input type="text" class="form-control bg-light border-0" id="newBranchProductName" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label small text-muted fw-bold">PRECIO</label>
+                                <input type="number" step="0.01" class="form-control bg-light border-0" id="newBranchProductPrice" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label small text-muted fw-bold">STOCK INICIAL</label>
+                                <input type="number" class="form-control bg-light border-0" id="newBranchProductStock" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted fw-bold">CATEGORÍA</label>
+                            <select class="form-select bg-light border-0" id="newBranchProductCategory">
+                                <option value="food">Alimentos</option>
+                                <option value="drink">Bebidas</option>
+                                <option value="other">Otros</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-info text-white w-100 py-2 rounded-pill mt-3">Agregar a Sucursal</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/central_dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  pg_primary:
+    image: postgres:14-alpine
+    container_name: pg_primary
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ecomarket
+    volumes:
+      - ./init-primary.sh:/docker-entrypoint-initdb.d/init-primary.sh
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    ports:
+      - "5432:5432"
+    networks:
+      - db-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pg_replica1:
+    image: postgres:14-alpine
+    container_name: pg_replica1
+    environment:
+      PGPASSWORD: replicator_pass
+    depends_on:
+      pg_primary:
+        condition: service_healthy
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./init-replica.sh:/init-replica.sh
+    entrypoint: ["/bin/bash", "/init-replica.sh"]
+    networks:
+      - db-net
+
+  pg_replica2:
+    image: postgres:14-alpine
+    container_name: pg_replica2
+    environment:
+      PGPASSWORD: replicator_pass
+    depends_on:
+      pg_primary:
+        condition: service_healthy
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./init-replica.sh:/init-replica.sh
+    entrypoint: ["/bin/bash", "/init-replica.sh"]
+    networks:
+      - db-net
+
+  # Shards independientes para prueba de sharding real
+  shard_a:
+    image: postgres:14-alpine
+    container_name: shard_a
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ecomarket_shard_0
+    ports:
+      - "5435:5432"
+    networks:
+      - db-net
+
+  shard_b:
+    image: postgres:14-alpine
+    container_name: shard_b
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ecomarket_shard_1
+    ports:
+      - "5436:5432"
+    networks:
+      - db-net
+
+networks:
+  db-net:
+    driver: bridge

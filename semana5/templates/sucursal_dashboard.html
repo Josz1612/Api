@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMarket POS - Sucursal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            height: 100vh;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        .pos-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .pos-header {
+            background: #212529;
+            color: white;
+            padding: 0.5rem 1rem;
+            flex-shrink: 0;
+        }
+        .pos-content {
+            flex-grow: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        .catalog-section {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background-color: #f0f2f5;
+        }
+        .register-section {
+            width: 400px;
+            background: white;
+            border-left: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        .product-card {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #0d6efd;
+        }
+        .product-card.selected {
+            border: 2px solid #0d6efd;
+            background-color: #e7f1ff;
+        }
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #198754;
+        }
+        .stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .register-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+            background: #f8f9fa;
+        }
+        .register-body {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        .register-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #dee2e6;
+            background: #f8f9fa;
+        }
+        .total-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: right;
+            color: #212529;
+            margin-bottom: 1rem;
+        }
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .qty-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #dee2e6;
+            background: white;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .qty-btn:hover {
+            background: #e9ecef;
+        }
+        .qty-input {
+            width: 60px;
+            text-align: center;
+            font-size: 1.2rem;
+            border: none;
+            background: transparent;
+            font-weight: bold;
+        }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="pos-container">
+        <!-- Top Bar -->
+        <div class="pos-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <h4 class="mb-0 text-white"><i class="bi bi-shop me-2"></i>EcoMarket POS</h4>
+                <span class="badge bg-success bg-opacity-25 text-success border border-success">
+                    <i class="bi bi-wifi me-1"></i> ONLINE
+                </span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-end d-none d-md-block">
+                    <small class="d-block text-white-50">Ventas Hoy</small>
+                    <span class="fw-bold" id="sales-count-header">0</span>
+                </div>
+                <div class="vr text-white-50 mx-2"></div>
+                <div class="text-end d-none d-md-block">
+                    <small class="d-block text-white-50">Ingresos</small>
+                    <span class="fw-bold text-success" id="total-revenue-header">$0.00</span>
+                </div>
+                <button class="btn btn-outline-light btn-sm ms-3" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="pos-content">
+            <!-- Left Side: Catalog -->
+            <div class="catalog-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="input-group" style="max-width: 400px;">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0" id="searchProduct" placeholder="Buscar productos..." onkeyup="filterProducts()">
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-secondary active" onclick="filterCategory('all')">Todos</button>
+                        <button class="btn btn-outline-secondary" onclick="filterCategory('food')">Alimentos</button>
+                        <button class="btn btn-outline-secondary" onclick="filterCategory('drink')">Bebidas</button>
+                    </div>
+                </div>
+
+                <div class="row g-3" id="product-grid">
+                    <!-- Products will be injected here -->
+                    <div class="col-12 text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Register -->
+            <div class="register-section">
+                <div class="register-header">
+                    <h5 class="mb-0"><i class="bi bi-cart3 me-2"></i>Venta Actual</h5>
+                </div>
+                
+                <div class="register-body d-flex flex-column justify-content-center align-items-center text-center" id="empty-cart-state">
+                    <i class="bi bi-basket2 display-1 text-muted mb-3 opacity-25"></i>
+                    <p class="text-muted">Selecciona un producto<br>para comenzar la venta</p>
+                </div>
+
+                <div class="register-body d-none" id="active-cart-state">
+                    <div class="card border-0 bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-1" id="selected-product-name">Producto</h5>
+                            <p class="card-text text-muted small mb-0">ID: <span id="selected-product-id">--</span></p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small text-uppercase fw-bold">Cantidad</label>
+                        <div class="qty-control justify-content-center p-3 bg-white border rounded">
+                            <button class="qty-btn" onclick="adjustQty(-1)"><i class="bi bi-dash"></i></button>
+                            <input type="number" class="qty-input" id="qty-input" value="1" min="1" onchange="updateTotal()">
+                            <button class="qty-btn" onclick="adjustQty(1)"><i class="bi bi-plus-lg"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small text-uppercase fw-bold">Precio Unitario</label>
+                        <div class="fs-4 text-end border-bottom pb-2" id="unit-price-display">$0.00</div>
+                    </div>
+
+                    <div class="mt-auto">
+                        <label class="form-label text-muted small text-uppercase fw-bold">Total a Pagar</label>
+                        <div class="total-display text-primary" id="total-amount-display">$0.00</div>
+                    </div>
+                </div>
+
+                <div class="register-footer">
+                    <button class="btn btn-success w-100 py-3 fs-5 fw-bold mb-2" id="btn-process-sale" onclick="processSale()" disabled>
+                        <i class="bi bi-check-circle me-2"></i> COBRAR
+                    </button>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary flex-grow-1" data-bs-toggle="modal" data-bs-target="#recentSalesModal">
+                            <i class="bi bi-clock-history"></i> Historial
+                        </button>
+                        <button class="btn btn-outline-secondary flex-grow-1" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                            <i class="bi bi-gear"></i> Config
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Recent Sales Modal -->
+    <div class="modal fade" id="recentSalesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Historial de Ventas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Producto</th>
+                                    <th>Cant</th>
+                                    <th>Total</th>
+                                    <th>Hora</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Configuración de Sucursal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="/set-method">
+                        <div class="mb-3">
+                            <label class="form-label">Método de Notificación</label>
+                            <select class="form-select" name="method">
+                                <option value="http" {% if notify_method == 'http' %}selected{% endif %}>HTTP Directo</option>
+                                <option value="http_retry" {% if notify_method == 'http_retry' %}selected{% endif %}>HTTP con Reintentos</option>
+                                <option value="http_backoff" {% if notify_method == 'http_backoff' %}selected{% endif %}>HTTP con Backoff</option>
+                                <option value="rabbitmq" {% if notify_method == 'rabbitmq' %}selected{% endif %}>RabbitMQ (Async)</option>
+                            </select>
+                            <div class="form-text">Define cómo se envían las ventas al servidor central.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Guardar Cambios</button>
+                    </form>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-3">Enlaces de Desarrollo</h6>
+                    <div class="list-group">
+                        <a href="/docs" target="_blank" class="list-group-item list-group-item-action">
+                            <i class="bi bi-book me-2"></i> Documentación API (Swagger)
+                        </a>
+                        <a href="/inventory" target="_blank" class="list-group-item list-group-item-action">
+                            <i class="bi bi-code-slash me-2"></i> JSON Inventario
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // POS Logic
+        let inventoryData = [];
+        let selectedProduct = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInventory();
+            loadSalesHistory();
+            loadStats();
+            
+            // Auto-refresh
+            setInterval(() => {
+                loadInventory(true); // true = silent update
+                loadStats();
+            }, 30000);
+        });
+
+        async function loadInventory(silent = false) {
+            try {
+                const response = await fetch('/inventory');
+                const data = await response.json();
+                inventoryData = data;
+                renderGrid(data);
+            } catch (error) {
+                console.error('Error loading inventory:', error);
+                if(!silent) document.getElementById('product-grid').innerHTML = '<div class="col-12 text-center text-danger">Error cargando inventario</div>';
+            }
+        }
+
+        function renderGrid(products) {
+            const grid = document.getElementById('product-grid');
+            const searchTerm = document.getElementById('searchProduct').value.toLowerCase();
+            
+            const filtered = products.filter(p => p.name.toLowerCase().includes(searchTerm));
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="col-12 text-center text-muted py-5">No se encontraron productos</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => {
+                const isSelected = selectedProduct && selectedProduct.id === p.id;
+                const stockClass = p.stock > 10 ? 'success' : (p.stock > 0 ? 'warning' : 'danger');
+                const stockLabel = p.stock > 0 ? `${p.stock} en stock` : 'Agotado';
+                const disabled = p.stock <= 0 ? 'opacity-50' : '';
+                
+                // Placeholder icons based on name (simple heuristic)
+                let icon = 'bi-box-seam';
+                if(p.name.toLowerCase().includes('manzana')) icon = 'bi-apple';
+                if(p.name.toLowerCase().includes('pan')) icon = 'bi-egg-fried'; // close enough
+                if(p.name.toLowerCase().includes('leche')) icon = 'bi-cup-straw';
+                if(p.name.toLowerCase().includes('cafe')) icon = 'bi-cup-hot';
+                
+                return `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card product-card ${isSelected ? 'selected' : ''} ${disabled}" onclick="selectProduct(${p.id})">
+                        <div class="card-body text-center p-4">
+                            <span class="badge bg-${stockClass} stock-badge">${stockLabel}</span>
+                            <div class="mb-3 text-secondary">
+                                <i class="bi ${icon} display-4"></i>
+                            </div>
+                            <h6 class="card-title text-truncate mb-2" title="${p.name}">${p.name}</h6>
+                            <div class="product-price">$${p.price.toFixed(2)}</div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function selectProduct(id) {
+            const product = inventoryData.find(p => p.id === id);
+            if (!product || product.stock <= 0) return;
+
+            selectedProduct = product;
+            
+            // Update UI
+            document.getElementById('empty-cart-state').classList.add('d-none');
+            document.getElementById('active-cart-state').classList.remove('d-none');
+            
+            document.getElementById('selected-product-name').textContent = product.name;
+            document.getElementById('selected-product-id').textContent = product.id;
+            document.getElementById('unit-price-display').textContent = `$${product.price.toFixed(2)}`;
+            
+            // Reset qty
+            document.getElementById('qty-input').value = 1;
+            document.getElementById('qty-input').max = product.stock;
+            
+            updateTotal();
+            renderGrid(inventoryData); // Re-render to show selection highlight
+            
+            // Enable button
+            document.getElementById('btn-process-sale').disabled = false;
+        }
+
+        function adjustQty(delta) {
+            if (!selectedProduct) return;
+            const input = document.getElementById('qty-input');
+            let newVal = parseInt(input.value) + delta;
+            
+            if (newVal < 1) newVal = 1;
+            if (newVal > selectedProduct.stock) newVal = selectedProduct.stock;
+            
+            input.value = newVal;
+            updateTotal();
+        }
+
+        function updateTotal() {
+            if (!selectedProduct) return;
+            const qty = parseInt(document.getElementById('qty-input').value);
+            const total = qty * selectedProduct.price;
+            document.getElementById('total-amount-display').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function filterProducts() {
+            renderGrid(inventoryData);
+        }
+        
+        function filterCategory(cat) {
+            const grid = document.getElementById('product-grid');
+            const buttons = document.querySelectorAll('.btn-group .btn');
+            
+            // Update active button
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (cat === 'all') {
+                renderGrid(inventoryData);
+                return;
+            }
+
+            const filtered = inventoryData.filter(p => p.category === cat);
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="col-12 text-center text-muted py-5">No se encontraron productos en esta categoría</div>';
+                return;
+            }
+
+            // Reuse render logic (simplified for this snippet)
+            // Ideally renderGrid should accept a list, which it does.
+            renderGrid(filtered);
+        }
+
+        async function processSale() {
+            if (!selectedProduct) return;
+            
+            const qty = parseInt(document.getElementById('qty-input').value);
+            const btn = document.getElementById('btn-process-sale');
+            
+            // Loading state
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+            
+            try {
+                const response = await fetch('/sales', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product_id: selectedProduct.id,
+                        quantity: qty,
+                        customer_info: "POS Walk-in"
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Success feedback
+                    alert(`Venta Exitosa!\nTicket #${result.sale_id}\nTotal: $${result.total_amount.toFixed(2)}`);
+                    
+                    // Reset UI
+                    selectedProduct = null;
+                    document.getElementById('empty-cart-state').classList.remove('d-none');
+                    document.getElementById('active-cart-state').classList.add('d-none');
+                    btn.innerHTML = '<i class="bi bi-check-circle me-2"></i> COBRAR';
+                    
+                    // Refresh data
+                    loadInventory();
+                    loadSalesHistory();
+                    loadStats();
+                } else {
+                    const err = await response.json();
+                    alert('Error: ' + err.detail);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-check-circle me-2"></i> COBRAR';
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error de conexión');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-circle me-2"></i> COBRAR';
+            }
+        }
+
+        async function loadSalesHistory() {
+            try {
+                const response = await fetch('/sales');
+                const sales = await response.json();
+                const tbody = document.getElementById('sales-table-body');
+                
+                tbody.innerHTML = sales.slice(-10).reverse().map(s => `
+                    <tr>
+                        <td><small class="text-muted">${s.sale_id.substring(0,8)}...</small></td>
+                        <td>${s.product_name}</td>
+                        <td>${s.quantity_sold}</td>
+                        <td>$${s.total_amount.toFixed(2)}</td>
+                        <td><small>${new Date(s.timestamp).toLocaleTimeString()}</small></td>
+                        <td><span class="badge bg-success">OK</span></td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('sales-count-header').textContent = sales.length;
+            } catch (e) {
+                console.error('Error loading history', e);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/sales/stats');
+                const stats = await response.json();
+                document.getElementById('total-revenue-header').textContent = `$${stats.total_revenue.toFixed(2)}`;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>

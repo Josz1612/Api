@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pyjwt
+pytest
+httpx
+slowapi
+python-dotenv
+pydantic-settings

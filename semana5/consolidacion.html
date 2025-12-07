@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto EcoMarket: Guía de Integración Autogestiva</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfdff;
+            --card-bg-color: #ffffff;
+            --text-color: #3e4a66;
+            --heading-color: #2c364d;
+            --accent-color-1: #a2d2ff;
+            --accent-color-2: #bde0fe;
+            --accent-color-ai: #fff1a2;
+            --shadow-color: rgba(162, 210, 255, 0.2);
+            --border-color: #eef2f7;
+            --code-bg: #282c34;
+            --code-text: #abb2bf;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            color: var(--heading-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+
+        .card {
+            background-color: var(--card-bg-color);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--heading-color);
+            border-bottom: 3px solid var(--accent-color-2);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--heading-color);
+            font-weight: 600;
+            margin-top: 2rem;
+        }
+
+        .step-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .step-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .step-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 25px;
+            height: 25px;
+            background-color: var(--accent-color-1);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            font-weight: 600;
+        }
+        
+        .prompt-box {
+            background-color: #f7faff;
+            border-left: 5px solid var(--accent-color-1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .prompt-box h3 {
+            margin-top: 0;
+            color: var(--heading-color);
+        }
+
+        .ai-section {
+            background-color: #fff9d5;
+            border-left: 5px solid var(--accent-color-ai);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+        }
+
+        .ai-section h3 {
+            margin-top: 0;
+            color: #7a6a00;
+        }
+        
+        .code-block {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            color: #99a2b8;
+            border-top: 2px solid var(--border-color);
+        }
+        
+        .nav-menu {
+            position: sticky;
+            top: 0;
+            background-color: rgba(253, 253, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            z-index: 100;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--text-color);
+            margin: 0 1rem;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        .nav-menu a:hover {
+            color: var(--accent-color-1);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Proyecto EcoMarket</h1>
+            <p>Guía de Integración Autogestiva para la Semana 1</p>
+        </header>
+
+        <div class="card">
+            <h2>El Desafío: EcoMarket Necesita Expandirse</h2>
+            <p><strong>EcoMarket</strong>, una tienda local con un sistema de inventario centralizado, ha tenido un éxito rotundo. Ahora, el plan es abrir 3 nuevas sucursales. Sin embargo, su sistema actual no está preparado para este crecimiento. Si se expanden sin cambiar su tecnología, enfrentarán problemas graves:</p>
+            <ul>
+                <li><strong>Mala experiencia del cliente:</strong> Lentas consultas de stock y posibles ventas de productos agotados.</li>
+                <li><strong>Parálisis operativa:</strong> Si la conexión a internet con la central falla, ninguna sucursal puede operar.</li>
+                <li><strong>Inconsistencia de datos:</strong> Sin una forma clara de sincronizar el inventario, el caos está garantizado.</li>
+            </ul>
+            <p>Nuestra misión es transformar este sistema centralizado en una solución distribuida, robusta y escalable que soporte el crecimiento del negocio.</p>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="#plan">Plan de Acción</a>
+            <a href="#fase1">Fase 1</a>
+            <a href="#fase2">Fase 2</a>
+            <a href="#fase3">Fase 3</a>
+            <a href="#fase4">Fase 4</a>
+        </nav>
+
+        <div class="card" id="plan">
+            <h2>Nuestro Plan de Acción</h2>
+            <p>Para resolver este desafío, hemos dividido el trabajo en fases claras. Esto es lo que hemos logrado y lo que haremos a continuación.</p>
+            
+            <h3>✅ Lo que hemos hecho:</h3>
+            <ol class="step-list">
+                <li>Investigamos los fundamentos de los sistemas distribuidos, analizando casos de éxito, fracaso y desafíos técnicos como la latencia y la consistencia.</li>
+                <li>Experimentamos en el laboratorio creando una API REST básica para un sistema de inventario centralizado, simulando cómo funciona EcoMarket actualmente.</li>
+                <li>Simulamos problemas comunes de los sistemas distribuidos, como la latencia de red, para entender su impacto directo en la experiencia del usuario.</li>
+            </ol>
+
+            <h3>🎯 Lo que haremos ahora (paso a paso):</h3>
+            <ol class="step-list">
+                <li><strong>Fase 1: Sintetizar.</strong> Convertiremos nuestra investigación teórica en decisiones de diseño concretas para EcoMarket.</li>
+                <li><strong>Fase 2: Prototipar.</strong> Evolucionaremos nuestra API centralizada para simular la apertura de la primera sucursal, aplicando los principios de un sistema distribuido.</li>
+                <li><strong>Fase 3: Comunicar.</strong> Prepararemos una presentación y un "Elevator Pitch" para explicar nuestra solución técnica en términos de beneficios para el negocio.</li>
+                <li><strong>Fase 4: Planificar a futuro.</strong> Investigaremos patrones de resiliencia para asegurarnos de que nuestro sistema pueda sobrevivir a fallos de red.</li>
+            </ol>
+        </div>
+
+        <!-- FASE 1 -->
+        <section class="card" id="fase1">
+            <h2>Fase 1: Sintetizando la Investigación en Decisiones (45 min)</h2>
+            <div class="prompt-box">
+                <h3>🎯 Prompt: "El ADN de Nuestra Arquitectura"</h3>
+                <p><strong>Tu misión:</strong> Convertir la investigación de la pre-clase en los principios fundamentales que guiarán el diseño de su solución para EcoMarket. No basta con saber qué hicieron otras empresas; deben entender el <em>porqué</em> y aplicarlo a este caso.</p>
+            </div>
+            
+            <h3>Actividad:</h3>
+            <ol>
+                <li>En su repositorio Git, creen un archivo `DECISIONS.md`. Este será su diario de decisiones arquitectónicas.</li>
+                <li>Revisen su mapa conceptual e investigación sobre casos de éxito, desafíos técnicos y arquitecturas reales.</li>
+                <li>Completen la siguiente plantilla en `DECISIONS.md` para al menos tres principios clave.</li>
+            </ol>
+
+            <p><strong>Plantilla para `DECISIONS.md`:</strong></p>
+            <div class="code-block">
+## Principios de Diseño para EcoMarket
+
+### Basado en: [Éxitos/Fracasos | Desafíos Técnicos | Arquitecturas Reales]
+
+*   **Principio Clave que Adoptaremos**: [Ej: Cada sucursal operará de forma autónoma (offline-first) para garantizar la venta incluso sin internet.]
+*   **Justificación**: [Ej: Aprendimos del caso X que las fallas en la red central no pueden detener las operaciones de las sucursales.]
+*   **Riesgo que Mitigaremos**: [Ej: Evitaremos las consultas de inventario síncronas entre sucursales, ya que la latencia crearía una mala experiencia.]
+*   **Justificación**: [Ej: Una espera de 3 segundos por una consulta de stock es inaceptable en el punto de venta.]
+            </div>
+
+            <div class="ai-section">
+                <h3>🧠 Uso con Inteligencia Artificial</h3>
+                <p>¿Te cuesta trabajo articular un principio de diseño? Usa la IA como un compañero de sparring intelectual.</p>
+                <p><strong>Prompt sugerido:</strong></p>
+                <div class="code-block">
+"Actúa como un arquitecto de software senior. Basado en mi investigación sobre los problemas de latencia en sistemas de retail distribuidos, he identificado que las consultas síncronas de inventario son un riesgo. Ayúdame a formular un 'Principio de Diseño' y una 'Justificación' claros y concisos para mi archivo DECISIONS.md que aborden este problema para una tienda llamada EcoMarket."
+                </div>
+            </div>
+        </section>
+
+        <!-- FASE 2 -->
+        <section class="card" id="fase2">
+            <h2>Fase 2: Prototipando la Solución Distribuida (90 min)</h2>
+            <div class="prompt-box">
+                <h3>🎯 Prompt: "La Primera Expansión: De Central a Sucursal"</h3>
+                <p><strong>Tu misión:</strong> Ya tienen una API REST centralizada funcional. Ahora, simularán la expansión abriendo la primera sucursal, aplicando los principios de diseño que acaban de definir.</p>
+            </div>
+            
+            <h3>Actividades:</h3>
+            <ol>
+                <li><strong>Diseño Visual (15 min):</strong> Dibuja un diagrama simple de la nueva arquitectura mostrando la `API Central` y `API Sucursal 1`. Indica con flechas cómo se comunican (¿la sucursal "pregunta" o "notifica"?).</li>
+                <li><strong>Implementación del Prototipo (60 min):</strong>
+                    <ul>
+                        <li>Duplica el proyecto de tu API y renómbralo a `EcoMarket.Central` y `EcoMarket.Sucursal1`.</li>
+                        <li>Haz que la sucursal sea autónoma, gestionando su propio inventario en memoria.</li>
+                        <li>Implementa una **comunicación asíncrona**: cuando ocurra una venta en la sucursal, actualiza su inventario local al instante y luego envía una notificación a la API Central para actualizar el inventario global.</li>
+                    </ul>
+                </li>
+                <li><strong>Reflexión sobre Consistencia (15 min):</strong>
+                    <ul>
+                        <li>En `DECISIONS.md`, añade una sección `## Estrategia de Consistencia`.</li>
+                        <li>Explica que usaste un modelo de "consistencia eventual" y describe el trade-off: priorizar la velocidad y disponibilidad en la tienda a cambio de posibles discrepancias temporales en el inventario central.</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <div class="ai-section">
+                <h3>🧠 Uso con Inteligencia Artificial</h3>
+                <p>¿Atascado en el código para la comunicación asíncrona? La IA puede darte un punto de partida sólido.</p>
+                <p><strong>Prompt sugerido:</strong></p>
+                <div class="code-block">
+"Estoy usando C# con ASP.NET Core. Necesito que mi API de sucursal envíe una notificación de venta (un objeto JSON simple) a un endpoint en mi API central. Muéstrame un ejemplo de código robusto usando `HttpClient` y `IHttpClientFactory` para realizar esta llamada POST de forma asíncrona y sin bloquear el hilo principal. Asegúrate de incluir manejo básico de errores."
+                </div>
+            </div>
+        </section>
+
+        <!-- FASE 3 -->
+        <section class="card" id="fase3">
+            <h2>Fase 3: Preparando la Presentación (45 min)</h2>
+            <div class="prompt-box">
+                <h3>🎯 Prompt: "Vendiendo la Visión al CEO"</h3>
+                <p><strong>Tu misión:</strong> Traducir tus decisiones técnicas en beneficios de negocio claros y convincentes para un público no técnico. El objetivo es justificar la inversión en esta nueva arquitectura.</p>
+            </div>
+            
+            <h3>Actividades:</h3>
+            <ol>
+                <li><strong>Estructura de la Presentación (30 min):</strong> Usando tu `DECISIONS.md` y el prototipo, crea un borrador de 5 diapositivas:
+                    <ol type="a">
+                        <li>El Desafío de Crecer.</li>
+                        <li>Nuestra Arquitectura: Rápida y Resiliente (con tu diagrama).</li>
+                        <li>Decisiones Basadas en Evidencia (con un principio de tu `DECISIONS.md`).</li>
+                        <li>Demo Funcional.</li>
+                        <li>Próximos Pasos.</li>
+                    </ol>
+                </li>
+                <li><strong>Elevator Pitch (15 min):</strong> Cada miembro prepara un discurso de 2 minutos sobre por qué EcoMarket necesita este sistema, enfocado en beneficios (velocidad, confiabilidad, crecimiento). Luego, unifíquenlo en una versión final de equipo.</li>
+            </ol>
+
+            <div class="ai-section">
+                <h3>🧠 Uso con Inteligencia Artificial</h3>
+                <p>La IA es una excelente herramienta para practicar la comunicación con audiencias no técnicas. Puedes pedirle que actúe como tu público objetivo.</p>
+                <p><strong>Prompt sugerido:</strong></p>
+                <div class="code-block">
+"Actúa como el CEO de EcoMarket, una cadena de tiendas en crecimiento. No tengo conocimientos técnicos. A continuación, te presento mi 'Elevator Pitch' de 2 minutos sobre por qué debemos invertir en un nuevo sistema de inventario distribuido. Dame feedback sobre si es claro, convincente y si responde a mis preocupaciones como líder del negocio (costos, riesgo, satisfacción del cliente).
+
+[Pega aquí tu borrador del elevator pitch]"
+                </div>
+            </div>
+        </section>
+
+        <!-- FASE 4 -->
+        <section class="card" id="fase4">
+            <h2>Fase 4: Proyección a la Siguiente Semana (30 min)</h2>
+            <div class="prompt-box">
+                <h3>🎯 Prompt: "El Plan de Contingencia: ¿Qué pasa si se cae Internet?"</h3>
+                <p><strong>Tu misión:</strong> Tu sistema distribuido funciona, pero la comunicación entre la sucursal y la central aún puede fallar. Es hora de pensar en la resiliencia.</p>
+            </div>
+
+            <h3>Actividad de Preparación (Autoestudio Individual):</h3>
+            <p>Investiga los patrones de diseño <strong>Circuit Breaker (Cortocircuito)</strong> y <strong>Timeout</strong>.</p>
+            
+            <p><strong>En tu diario de aprendizaje, responde:</strong></p>
+            <ol>
+                <li>En mis propias palabras, ¿qué es el patrón Circuit Breaker?</li>
+                <li>¿Cómo actuaría un Circuit Breaker si la API de la sucursal no puede comunicarse con la API central repetidamente?</li>
+                <li>¿Por qué una estrategia de Timeout simple no es suficiente, y qué ventaja clave ofrece el Circuit Breaker?</li>
+            </ol>
+
+            <div class="ai-section">
+                <h3>🧠 Uso con Inteligencia Artificial</h3>
+                <p>Los patrones de diseño pueden ser abstractos. Pide a la IA que te los explique con analogías del mundo real.</p>
+                <p><strong>Prompt sugerido:</strong></p>
+                <div class="code-block">
+"Explícame el patrón de diseño de software 'Circuit Breaker' usando una analogía simple del mundo real que no tenga que ver con la electricidad. Compara su funcionamiento con una simple estrategia de 'Timeout'. ¿Cuándo y por qué es superior el Circuit Breaker?"
+                </div>
+            </div>
+        </section>
+
+    </div>
+    
+    <footer>
+        <p>Guía de autoestudio elaborada para el curso de Fundamentos de Sistemas Distribuidos (c) 2025.</p>
+    </footer>
+
+</body>
+</html>

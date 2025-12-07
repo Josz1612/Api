@@ -1,107 +1,72 @@
-# 🧪 Semana 5: Testing y Pruebas de Carga
+# Semana 5: Integraci�n de APIs Reales y Dashboards de Monitoreo
 
-## 📋 Objetivo
-Implementar suite completa de testing: pruebas unitarias, integración, carga, y cobertura de código para garantizar calidad del sistema.
+En esta semana, consolidamos el sistema distribuido integrando la **API Central** con **APIs de Sucursales Reales**. Dejamos atr�s los datos simulados para lograr una comunicaci�n bidireccional real, visualizada a trav�s de un **Dashboard de Monitoreo** interactivo.
 
-## 🛠️ Tecnologías Utilizadas
-- **pytest**: Framework de testing unitario
-- **pytest-asyncio**: Testing asíncrono
-- **pytest-cov**: Reporte de cobertura
-- **Locust**: Pruebas de carga y estrés
-- **requests**: Cliente HTTP para testing
+##  Objetivos
+1.  **Integraci�n Real**: Conectar el Dashboard con instancias reales de `sucursal_api.py` corriendo en diferentes puertos.
+2.  **Sincronizaci�n Bidireccional**: Permitir la carga de inventario desde sucursales y la sincronizaci�n de cambios hacia la central.
+3.  **Visualizaci�n y Control**: Proveer una interfaz gr�fica (Dashboard) para monitorear el estado de la red y gestionar inventarios.
+4.  **Persistencia y Replicaci�n (Hito 2)**: Implementar estrategias de replicaci�n y sharding en base de datos (PostgreSQL).
 
-## 📁 Archivos Principales
-- `test_api.py`: Tests unitarios de endpoints
-- `load_test.py`: Configuración de Locust
-- `TEST-RESILIENCIA.ps1`: Script de pruebas automatizadas
-- `conftest.py`: Fixtures compartidos
+##  Estructura del Proyecto
 
-## 🔍 Tipos de Testing
-
-### 1. 🧩 Tests Unitarios (pytest)
-```bash
-# Ejecutar todos los tests
-pytest -v
-
-# Con cobertura
-pytest --cov=. --cov-report=html
+```text
+Semana5/
+ templates/
+    central_dashboard.html   # Dashboard principal (Bootstrap + JS)
+ central_api.py              # API Central (Puerto 8000)
+ sucursal_api.py             # API de Sucursal (Puertos 8001, 8002, 8003)
+ bridge_consumer.py          # Consumidor puente para integración
+ INTEGRACIN_API_REAL.md     # Documentacin detallada de la integracin
+ HITO2_REPORT.md             # Informe sobre replicacin y sharding
+ static/                     # Recursos estticos (CSS, JS)
 ```
 
-**Áreas cubiertas:**
-- CRUD de productos
-- Autenticación JWT
-- Estrategias de resiliencia
-- Validaciones de datos
+##  Funcionalidades del Dashboard
 
-### 2. 📊 Tests de Carga (Locust)
-```bash
-# Iniciar Locust
-locust -f load_test.py --host=http://localhost:8000
+### 1. Gesti�n de Inventario Multi-Sucursal
+- **Selecci�n de Sucursal**: Dropdown para cambiar entre Norte, Sur y Centro.
+- **Datos en Tiempo Real**: Carga inventario directamente desde la API de la sucursal seleccionada.
+- **Edici�n con Modal**: Interfaz moderna para actualizar stock localmente.
 
-# Interfaz web: http://localhost:8089
-```
+### 2. Sincronizaci�n y Operaciones
+- **Sincronizar Producto**: Env�a actualizaciones de stock de una sucursal a la central.
+- **Sincronizaci�n Masiva**: Bot�n para sincronizar todas las sucursales.
+- **Comparaci�n**: Herramientas para detectar discrepancias entre inventario local y central.
 
-**Escenarios:**
-- 100 usuarios concurrentes
-- Rampa de carga gradual
-- Endpoints críticos (GET/POST)
-- Medición de tiempos de respuesta
+### 3. Monitoreo de Salud
+- **Indicadores de Estado**: Visualizaci�n (/) de la conexi�n con cada sucursal.
+- **Manejo de Errores**: Notificaciones claras si una sucursal est� fuera de l�nea.
 
-### 3. 🔄 Tests de Integración
-- Flujos completos de usuario
-- Interacción entre módulos
-- Persistencia de datos
-- Validación end-to-end
+##  Instrucciones de Ejecuci�n
 
-## 📈 Métricas Clave
+Para ver el sistema completo en acci�n, necesitas levantar 4 terminales:
 
-| Métrica | Objetivo | Actual |
-|---------|----------|--------|
-| Cobertura | >80% | ✅ |
-| Tests unitarios | 100% pass | ✅ |
-| Tiempo respuesta P95 | <500ms | ✅ |
-| Throughput | >100 req/s | ✅ |
-
-## 🎯 Fixtures y Utilidades
-
-```python
-# Cliente de testing
-@pytest.fixture
-def client():
-    return TestClient(app)
-
-# Datos de prueba
-@pytest.fixture
-def sample_product():
-    return {"nombre": "Test", "precio": 100}
-```
-
-## 🚀 Ejecución Automatizada
-
+### 1. Iniciar la API Central
 ```powershell
-# Script completo de testing
-.\TEST-RESILIENCIA.ps1
+# Terminal 1
+python central_api.py
+```
+*Corre en `http://localhost:8000`*
 
-# Incluye:
-# - Tests unitarios
-# - Tests de integración
-# - Reporte de cobertura
-# - Validación de estrategias
+### 2. Iniciar las Sucursales
+```powershell
+# Terminal 2 (Sucursal Norte)
+python sucursal_api.py --port 8001
+
+# Terminal 3 (Sucursal Sur)
+python sucursal_api.py --port 8002
+
+# Terminal 4 (Sucursal Centro)
+python sucursal_api.py --port 8003
 ```
 
-## 📊 Reportes Generados
-- **htmlcov/index.html**: Cobertura visual
-- **locust_report.html**: Resultados de carga
-- **pytest_results.xml**: Formato JUnit
+### 3. Acceder al Dashboard
+Abre `central_dashboard.html` en tu navegador o accede a trav�s del servidor si est� configurado para servir est�ticos.
+*(Generalmente disponible en `http://localhost:8000` si la API Central sirve el archivo, o abriendo el archivo HTML directamente para pruebas locales con CORS configurado).*
 
-## 📖 Documentación Completa
-Ver archivo detallado: [docs/SEMANA5_TESTING.md](../docs/SEMANA5_TESTING.md)
-
-## ✅ Criterios de Éxito
-- [x] Suite pytest configurada
-- [x] Cobertura >80%
-- [x] Locust configurado y funcional
-- [x] Tests de integración completos
-- [x] CI/CD compatible (resultados JUnit)
-- [x] Scripts de automatización
-- [x] Documentación de casos de prueba
+##  Entregables Adicionales (Hito 2)
+El archivo **`HITO2_REPORT.md`** contiene el informe detallado sobre:
+- **Replicaci�n**: Configuraci�n Primario-Secundario en PostgreSQL.
+- **Sharding**: Estrategias de particionamiento de datos.
+- **Teorema CAP**: An�lisis de decisiones de dise�o (CP vs AP) para diferentes dominios (Inventario, Carrito, Perfiles).

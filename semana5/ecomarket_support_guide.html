@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMarket: Guía de Apoyo para Estudiantes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Colores pastel modernos */
+            --pastel-blue: #E8F4FD;
+            --pastel-green: #E8F5E8;
+            --pastel-yellow: #FFF8E1;
+            --pastel-pink: #FCE4EC;
+            --pastel-purple: #F3E5F5;
+            --pastel-orange: #FFF3E0;
+            
+            /* Colores de acento */
+            --blue-accent: #2196F3;
+            --green-accent: #4CAF50;
+            --yellow-accent: #FF9800;
+            --pink-accent: #E91E63;
+            --purple-accent: #9C27B0;
+            --orange-accent: #FF5722;
+            
+            /* Colores de texto */
+            --text-dark: #2E2E2E;
+            --text-medium: #5A5A5A;
+            --text-light: #8A8A8A;
+            
+            /* Espaciado */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
+            
+            /* Bordes */
+            --border-radius: 12px;
+            --border-radius-lg: 20px;
+            
+            /* Sombras */
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--pastel-green) 0%, var(--pastel-blue) 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: var(--spacing-xl) 0;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: var(--spacing-sm);
+            background: linear-gradient(135deg, var(--green-accent), var(--blue-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: var(--text-medium);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* NavegaciÃ³n de secciones */
+        .section-nav {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            overflow-x: auto;
+            padding: var(--spacing-sm);
+        }
+
+        .section-nav-btn {
+            background: white;
+            border: 2px solid transparent;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .section-nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-nav-btn.active {
+            background: var(--green-accent);
+            color: white;
+        }
+
+        .section-nav-btn.metodologia { border-color: var(--green-accent); }
+        .section-nav-btn.tecnica { border-color: var(--blue-accent); }
+        .section-nav-btn.ia-prompts { border-color: var(--purple-accent); }
+        .section-nav-btn.debugging { border-color: var(--orange-accent); }
+
+        /* Tarjetas de secciÃ³n */
+        .section-card {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-lg);
+            display: none;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .section-card.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 3px solid;
+        }
+
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .metodologia .section-header { border-color: var(--green-accent); }
+        .metodologia .section-icon { background: var(--green-accent); }
+
+        .tecnica .section-header { border-color: var(--blue-accent); }
+        .tecnica .section-icon { background: var(--blue-accent); }
+
+        .ia-prompts .section-header { border-color: var(--purple-accent); }
+        .ia-prompts .section-icon { background: var(--purple-accent); }
+
+        .debugging .section-header { border-color: var(--orange-accent); }
+        .debugging .section-icon { background: var(--orange-accent); }
+
+        .section-title {
+            flex: 1;
+        }
+
+        .section-title h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        /* Elementos especiales */
+        .learning-tip {
+            background: var(--pastel-green);
+            border-left: 4px solid var(--green-accent);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin: var(--spacing-md) 0;
+        }
+
+        .learning-tip h3 {
+            color: var(--green-accent);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .warning-box {
+            background: var(--pastel-orange);
+            border-left: 4px solid var(--orange-accent);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin: var(--spacing-md) 0;
+        }
+
+        .warning-box h3 {
+            color: var(--orange-accent);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .tip-box {
+            background: var(--pastel-purple);
+            border-left: 4px solid var(--purple-accent);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin: var(--spacing-md) 0;
+        }
+
+        .tip-box h3 {
+            color: var(--purple-accent);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .ai-prompt-box {
+            background: var(--pastel-pink);
+            border-left: 4px solid var(--pink-accent);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin: var(--spacing-md) 0;
+        }
+
+        .ai-prompt-box h3 {
+            color: var(--pink-accent);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        /* Bloques de cÃ³digo */
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: var(--spacing-md) 0;
+            position: relative;
+        }
+
+        .code-header {
+            background: #2d2d2d;
+            color: #fff;
+            padding: var(--spacing-xs) var(--spacing-md);
+            margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md) calc(-1 * var(--spacing-md));
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: var(--blue-accent);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #1976D2;
+        }
+
+        /* Listas mejoradas */
+        .enhanced-list {
+            list-style: none;
+            counter-reset: item-counter;
+        }
+
+        .enhanced-list li {
+            counter-increment: item-counter;
+            margin-bottom: var(--spacing-md);
+            padding-left: 3rem;
+            position: relative;
+        }
+
+        .enhanced-list li::before {
+            content: counter(item-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: var(--blue-accent);
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-md);
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .section-nav {
+                flex-direction: column;
+            }
+
+            .section-nav-btn {
+                min-width: auto;
+            }
+
+            .section-card {
+                padding: var(--spacing-md);
+            }
+        }
+
+        /* Tablas */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--spacing-md) 0;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .comparison-table th {
+            background: var(--blue-accent);
+            color: white;
+            padding: var(--spacing-md);
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--pastel-blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📚 EcoMarket: Guía de Apoyo para Estudiantes</h1>
+            <p>Recursos metodológicos, técnicos y de IA para maximizar tu aprendizaje en sistemas distribuidos</p>
+        </header>
+
+        <!-- Navegación de secciones -->
+        <nav class="section-nav">
+            <button class="section-nav-btn metodologia active" onclick="showSection(0)">
+                🎯 Metodología de Estudio
+            </button>
+            <button class="section-nav-btn tecnica" onclick="showSection(1)">
+                💻 Referencia Técnica
+            </button>
+            <button class="section-nav-btn ia-prompts" onclick="showSection(2)">
+                🤖 IA como Compañero
+            </button>
+            <button class="section-nav-btn debugging" onclick="showSection(3)">
+                🔧 Troubleshooting
+            </button>
+        </nav>
+
+        <!-- Sección 1: Metodología de Estudio -->
+        <div class="section-card metodologia active" data-section="0">
+            <div class="section-header">
+                <div class="section-icon">🎯</div>
+                <div class="section-title">
+                    <h2>Metodología de Estudio para Estudiantes que Trabajan</h2>
+                    <p>Estrategias eficientes para maximizar tu tiempo de aprendizaje</p>
+                </div>
+            </div>
+
+            <h3>⏰ Gestión de Tiempo Realista</h3>
+            <p>Considerando que vienes del trabajo y tienes energía limitada, aquí está una distribución realista del tiempo:</p>
+
+            <div class="learning-tip">
+                <h3>💡 Tiempos Ajustados por Fatiga</h3>
+                <ul>
+                    <li><strong>Fase 1 (Conceptos):</strong> 60 min → Incluye tiempo para procesar después del trabajo</li>
+                    <li><strong>Fase 2 (Código):</strong> 120-150 min → Considera debugging y errores de setup</li>
+                    <li><strong>Fase 3 (Presentación):</strong> 45 min → Tiempo original es adecuado</li>
+                    <li><strong>Fase 4 (Resiliencia):</strong> 45 min → Más investigación y reflexión</li>
+                </ul>
+            </div>
+
+            <h3>🧠 Técnicas de Aprendizaje Profundo</h3>
+
+            <div class="tip-box">
+                <h3>🔄 Método de Espiral Ascendente</h3>
+                <p>En lugar de intentar entender todo perfectamente la primera vez:</p>
+                <ol class="enhanced-list">
+                    <li><strong>Primera pasada (25%):</strong> Entiende el "qué" y "por qué" general</li>
+                    <li><strong>Segunda pasada (50%):</strong> Implementa y haz funcionar el código</li>
+                    <li><strong>Tercera pasada (75%):</strong> Entiende el "cómo" detalladamente</li>
+                    <li><strong>Cuarta pasada (90%):</strong> Conecta con patrones más amplios</li>
+                </ol>
+            </div>
+
+            <h3>📝 Técnica del Diario de Aprendizaje</h3>
+            <p>Después de cada sesión, dedica 5 minutos a escribir:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>📔 Plantilla de Reflexión Diaria</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>FECHA: [HOY]
+TIEMPO INVERTIDO: [X minutos]
+ENERGÍA AL INICIO: [1-10]
+
+QUÉ APRENDÍ HOY:
+- Concepto clave 1:
+- Concepto clave 2:
+- Conexión inesperada:
+
+QUÉ ME COSTÓ MÁS TRABAJO:
+- Dificultad técnica:
+- Concepto confuso:
+- Error que tardé en resolver:
+
+PREGUNTA PARA MAÑANA:
+- ¿Cómo se conecta X con Y?
+- ¿Qué pasa si modifico Z?
+
+APLICACIÓN AL TRABAJO:
+- ¿Cómo podría usar esto en mi contexto laboral?</pre>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Señales de Sobrecarga Cognitiva</h3>
+                <p><strong>Para cuando notes estas señales:</strong></p>
+                <ul>
+                    <li>Relees el mismo párrafo 3 veces sin entender</li>
+                    <li>Los errores simples se vuelven frustrantes</li>
+                    <li>Sientes que "no entiendes nada"</li>
+                </ul>
+                <p><strong>Acción:</strong> Toma un descanso de 15 min, camina, hidrátate, y regresa al nivel más básico.</p>
+            </div>
+
+            <h3>🎯 Estrategia de Estudio Activo</h3>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Estudio Pasivo (Evitar)</th>
+                        <th>Estudio Activo (Hacer)</th>
+                        <th>Beneficio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Leer código sin ejecutar</td>
+                        <td>Escribir y modificar cada ejemplo</td>
+                        <td>Comprensión práctica</td>
+                    </tr>
+                    <tr>
+                        <td>Memorizar definiciones</td>
+                        <td>Explicar conceptos con analogías</td>
+                        <td>Retención a largo plazo</td>
+                    </tr>
+                    <tr>
+                        <td>Copiar/pegar sin entender</td>
+                        <td>Reescribir código línea por línea</td>
+                        <td>Comprensión profunda</td>
+                    </tr>
+                    <tr>
+                        <td>Estudiar en silencio</td>
+                        <td>Explicar en voz alta ("rubber duck")</td>
+                        <td>Detectar lagunas de conocimiento</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sección 2: Referencia Técnica -->
+        <div class="section-card tecnica" data-section="1">
+            <div class="section-header">
+                <div class="section-icon">💻</div>
+                <div class="section-title">
+                    <h2>Referencia Técnica Rápida</h2>
+                    <p>Conceptos clave, patrones y snippets esenciales</p>
+                </div>
+            </div>
+
+            <h3>🔑 Conceptos Fundamentales que Necesitas Dominar</h3>
+
+            <div class="tip-box">
+                <h3>🧭 Brújula Conceptual</h3>
+                <p>Si te pierdes en los detalles, regresa a estos conceptos núcleo:</p>
+                <ul>
+                    <li><strong>Autonomía:</strong> Cada servicio opera independientemente</li>
+                    <li><strong>Comunicación Asíncrona:</strong> "Fire and forget" vs "Request and wait"</li>
+                    <li><strong>Consistencia Eventual:</strong> Los datos se sincronizan "eventualmente"</li>
+                    <li><strong>Resiliencia:</strong> El sistema funciona incluso cuando partes fallan</li>
+                </ul>
+            </div>
+
+            <h3>📚 FastAPI - Recordatorio de Patrones Clave</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>🚀 Estructura Base de FastAPI</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre># Patrón básico que usarás constantemente
+from fastapi import FastAPI, HTTPException, BackgroundTasks
+from pydantic import BaseModel
+from typing import Dict, List, Optional
+import logging
+
+# Configuración de logging (SIEMPRE incluir)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = FastAPI(
+    title="Tu API",
+    description="Descripción clara",
+    version="1.0.0"
+)
+
+# Modelo de datos (Pydantic valida automáticamente)
+class YourModel(BaseModel):
+    field1: str
+    field2: int
+    optional_field: Optional[str] = None
+
+# Endpoint básico con logging
+@app.post("/your-endpoint")
+async def your_function(data: YourModel, background_tasks: BackgroundTasks):
+    logger.info(f"Recibido: {data}")
+    
+    # Tu lógica aquí
+    result = process_data(data)
+    
+    # Tarea en background (no bloquea respuesta)
+    background_tasks.add_task(notify_other_service, result)
+    
+    return {"status": "success", "result": result}</pre>
+            </div>
+
+            <h3>🔄 Patrones de Comunicación Asíncrona</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>📡 Cliente HTTP Asíncrono con httpx</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>import httpx
+import logging
+
+async def notify_external_service(data: dict, retries: int = 3):
+    """
+    Patrón: Notificación resiliente con reintentos
+    """
+    for attempt in range(retries):
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                response = await client.post(
+                    "http://other-service/endpoint",
+                    json=data
+                )
+                
+                if response.status_code == 200:
+                    logger.info("✅ Notificación exitosa")
+                    return True
+                else:
+                    logger.warning(f"⚠️ Respuesta inesperada: {response.status_code}")
+                    
+        except Exception as e:
+            logger.error(f"❌ Intento {attempt + 1} falló: {e}")
+            if attempt < retries - 1:
+                await asyncio.sleep(2 ** attempt)  # Backoff exponencial
+    
+    logger.error("❌ Falló después de todos los intentos")
+    return False</pre>
+            </div>
+
+            <h3>🏗️ Patrones de Arquitectura</h3>
+
+            <div class="learning-tip">
+                <h3>🎨 Cuándo Usar Cada Patrón</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Patrón</th>
+                            <th>Cuándo Usarlo</th>
+                            <th>Ejemplo en EcoMarket</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Request-Response</strong></td>
+                            <td>Necesitas respuesta inmediata</td>
+                            <td>Consultar inventario local</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fire-and-Forget</strong></td>
+                            <td>La operación puede esperar</td>
+                            <td>Notificar venta al central</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Event Sourcing</strong></td>
+                            <td>Necesitas auditoría completa</td>
+                            <td>Historial de cambios de precios</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CQRS</strong></td>
+                            <td>Lecturas y escrituras muy diferentes</td>
+                            <td>Dashboard vs operaciones de venta</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🐛 Debugging de Sistemas Distribuidos</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>🔍 Logging Estructurado</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>import logging
+import uuid
+from datetime import datetime
+
+# Configuración de logging mejorada
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+class CorrelationLogger:
+    """Ayuda a seguir requests a través de servicios"""
+    
+    def __init__(self, service_name: str):
+        self.service_name = service_name
+        self.logger = logging.getLogger(service_name)
+    
+    def start_operation(self, operation: str, data: dict = None):
+        correlation_id = str(uuid.uuid4())[:8]
+        self.logger.info(
+            f"🚀 [{correlation_id}] Iniciando {operation} | "
+            f"Data: {data} | Service: {self.service_name}"
+        )
+        return correlation_id
+    
+    def log_step(self, correlation_id: str, step: str, details: str = ""):
+        self.logger.info(f"⚡ [{correlation_id}] {step} | {details}")
+    
+    def end_operation(self, correlation_id: str, result: str):
+        self.logger.info(f"✅ [{correlation_id}] Completado | {result}")
+
+# Uso:
+# logger = CorrelationLogger("sucursal-api")
+# op_id = logger.start_operation("process_sale", {"product_id": 1})
+# logger.log_step(op_id, "validating_stock", "stock: 10")
+# logger.end_operation(op_id, "sale_completed")</pre>
+            </div>
+        </div>
+
+        <!-- Sección 3: IA como Compañero -->
+        <div class="section-card ia-prompts" data-section="2">
+            <div class="section-header">
+                <div class="section-icon">🤖</div>
+                <div class="section-title">
+                    <h2>IA como Compañero de Aprendizaje</h2>
+                    <p>Prompts efectivos para profundizar conocimiento y acelerar desarrollo</p>
+                </div>
+            </div>
+
+            <h3>🎯 Estrategia de Uso de IA</h3>
+
+            <div class="ai-prompt-box">
+                <h3>🧠 Principio Fundamental</h3>
+                <p>No uses IA para <strong>evitar</strong> pensar, úsala para <strong>pensar mejor</strong>. La IA debe amplificar tu entendimiento, no reemplazarlo.</p>
+            </div>
+
+            <h3>📚 Prompts para Fundamentar Decisiones</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>🤔 Análisis de Decisiones Arquitectónicas</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>PROMPT: Analiza esta decisión arquitectónica
+
+Contexto: Estoy desarrollando EcoMarket, un sistema de inventario distribuido para múltiples sucursales.
+
+Decisión que tomé: [Describe tu decisión específica]
+
+Mi razonamiento: [Explica por qué lo decidiste así]
+
+Pregunta para ti:
+1. ¿Qué ventajas y desventajas adicionales ves en esta decisión?
+2. ¿Qué problemas podrían surgir al escalar a 100 sucursales?
+3. ¿Hay algún patrón de arquitectura conocido que se aplique aquí?
+4. ¿Qué preguntas debería hacerme antes de implementar esto?
+
+Por favor, critica constructivamente mi razonamiento y sugiere mejoras específicas.</pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>⚖️ Análisis de Trade-offs</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>PROMPT: Ayúdame a analizar trade-offs
+
+Estoy decidiendo entre [Opción A] y [Opción B] para [problema específico] en EcoMarket.
+
+Opción A: [Describe]
+- Ventajas que veo: [lista]
+- Desventajas que veo: [lista]
+
+Opción B: [Describe]
+- Ventajas que veo: [lista]
+- Desventajas que veo: [lista]
+
+Contexto adicional:
+- Los usuarios son: [perfil de usuarios]
+- El volumen esperado es: [datos]
+- Las restricciones son: [limitaciones]
+
+¿Qué trade-offs importantes estoy pasando por alto? ¿Hay una tercera opción que debería considerar?</pre>
+            </div>
+
+            <h3>💻 Prompts para Código Complejo</h3>
+
+            <div class="tip-box">
+                <h3>🎨 Estrategia: Código Incremental</h3>
+                <p>No pidas a la IA que escriba todo el código de una vez. Construye incrementalmente:</p>
+                <ol class="enhanced-list">
+                    <li><strong>Primero:</strong> Pide que explique el enfoque general</li>
+                    <li><strong>Segundo:</strong> Pide que escriba la estructura básica</li>
+                    <li><strong>Tercero:</strong> Pide que agregue una característica específica</li>
+                    <li><strong>Cuarto:</strong> Pide que explique cada línea importante</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>🏗️ Construyendo Código Paso a Paso</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>PROMPT FASE 1 - Estrategia:
+Necesito implementar [funcionalidad específica] en mi API de FastAPI.
+
+Contexto: [describe tu sistema actual]
+Objetivo: [qué quieres lograr]
+Restricciones: [limitaciones técnicas o de negocio]
+
+Antes de escribir código, explícame:
+1. ¿Cuál sería el enfoque general más adecuado?
+2. ¿Qué patrones de diseño aplicarían aquí?
+3. ¿Qué podría salir mal y cómo prevenirlo?
+
+---
+
+PROMPT FASE 2 - Estructura:
+Basándome en tu explicación anterior, ahora muéstrame:
+1. La estructura básica de clases/funciones
+2. Los imports necesarios  
+3. La signatura de las funciones principales
+4. Comentarios explicando la lógica general
+
+NO escribas la implementación completa todavía.
+
+---
+
+PROMPT FASE 3 - Implementación:
+Ahora implementa la función [nombre específico] con:
+- Manejo de errores robusto
+- Logging para debugging
+- Documentación clara
+- Type hints apropiados
+
+Explica cada decisión importante que tomes en el código.</pre>
+            </div>
+
+            <h3>🔍 Prompts para Revisión de Código</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>👥 Code Review con IA</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>PROMPT: Actúa como un arquitecto senior revisando mi código
+
+Aquí está mi implementación:
+
+```python
+[tu código aquí]
+```
+
+Por favor revisa específicamente:
+
+1. **Arquitectura**: ¿Sigue buenas prácticas de sistemas distribuidos?
+2. **Resiliencia**: ¿Qué pasa si [servicio X] se cae?
+3. **Escalabilidad**: ¿Funcionará con 100x más tráfico?
+4. **Mantenibilidad**: ¿Un nuevo desarrollador lo entendería?
+5. **Seguridad**: ¿Hay vulnerabilidades obvias?
+
+Para cada problema que encuentres:
+- Explica POR QUÉ es un problema
+- Sugiere una solución específica
+- Muestra un ejemplo de código mejorado
+
+Sé específico y crítico, como si fuera para producción.</pre>
+            </div>
+
+            <h3>🚀 Prompts para Explorar Patrones Avanzados</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>🔬 Exploración de Patrones</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>PROMPT: Explora patrones para mi caso específico
+
+Mi sistema actual: [describe EcoMarket tal como lo tienes]
+
+Problema específico que enfrento: [ej: "Las notificaciones a veces fallan y no tengo visibilidad"]
+
+He oído de estos patrones:
+- [Pattern 1, ej: Circuit Breaker]
+- [Pattern 2, ej: Event Sourcing]  
+- [Pattern 3, ej: Saga Pattern]
+
+Para cada patrón:
+1. Explícalo con una analogía simple
+2. ¿Cómo se aplicaría específicamente a mi problema?
+3. Muestra un ejemplo de código mínimo pero funcional
+4. ¿Qué nueva complejidad introduce?
+5. ¿Vale la pena para mi escala actual?
+
+Termina recomendando cuál implementar primero y por qué.</pre>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ Evita Estos Antipatrones con IA</h3>
+                <ul>
+                    <li><strong>Copy-paste ciego:</strong> Siempre entiende el código antes de usarlo</li>
+                    <li><strong>Sobredependencia:</strong> Si no puedes explicar lo que hace, no lo uses</li>
+                    <li><strong>Falta de validación:</strong> La IA puede dar código que compila pero no funciona bien</li>
+                    <li><strong>Prompts vagos:</strong> "Hazme un sistema distribuido" no ayuda</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Sección 4: Troubleshooting -->
+        <div class="section-card debugging" data-section="3">
+            <div class="section-header">
+                <div class="section-icon">🔧</div>
+                <div class="section-title">
+                    <h2>Troubleshooting Avanzado</h2>
+                    <p>Soluciones a problemas comunes y técnicas de debugging</p>
+                </div>
+            </div>
+
+            <h3>🚨 Problemas Más Comunes y Sus Soluciones</h3>
+
+            <div class="warning-box">
+                <h3>🔥 Error: "Connection Refused" entre servicios</h3>
+                <p><strong>Síntomas:</strong> La sucursal no puede conectarse al central</p>
+                <p><strong>Diagnóstico paso a paso:</strong></p>
+                <ol>
+                    <li>Verifica que ambos servicios estén corriendo: <code>curl http://localhost:8000</code></li>
+                    <li>Checa que los puertos estén correctos en el código</li>
+                    <li>Revisa firewall/antivirus que pueda bloquear conexiones locales</li>
+                    <li>Si usas Docker: verifica que los containers estén en la misma red</li>
+                </ol>
+            </div>
+
+            <div class="warning-box">
+                <h3>🔄 Error: "Task was destroyed but it is pending"</h3>
+                <p><strong>Síntomas:</strong> Warnings al cerrar FastAPI con BackgroundTasks</p>
+                <p><strong>Solución:</strong></p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>✅ Shutdown Limpio</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                    </div>
+<pre>import asyncio
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    yield
+    # Shutdown - dar tiempo a background tasks
+    await asyncio.sleep(1)  # Permite que terminen las tareas
+
+app = FastAPI(lifespan=lifespan)</pre>
+                </div>
+            </div>
+
+            <h3>🔍 Técnicas Avanzadas de Debugging</h3>
+
+            <div class="tip-box">
+                <h3>🕵️ Debugging de Comunicación Asíncrona</h3>
+                <p>Los sistemas distribuidos son más difíciles de debuggear porque los errores pueden estar en cualquier servicio.</p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>📊 Middleware de Debugging</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>from fastapi import Request, Response
+import time
+import uuid
+
+@app.middleware("http")
+async def debug_middleware(request: Request, call_next):
+    # Generar ID único para cada request
+    request_id = str(uuid.uuid4())[:8]
+    start_time = time.time()
+    
+    # Log request
+    logger.info(
+        f"🔵 [{request_id}] {request.method} {request.url.path} | "
+        f"Headers: {dict(request.headers)}"
+    )
+    
+    # Procesar request
+    response = await call_next(request)
+    
+    # Log response
+    duration = time.time() - start_time
+    logger.info(
+        f"🟢 [{request_id}] {response.status_code} | "
+        f"Duration: {duration:.3f}s"
+    )
+    
+    # Agregar ID a headers para seguimiento
+    response.headers["X-Request-ID"] = request_id
+    return response</pre>
+            </div>
+
+            <h3>🧪 Testing de Sistemas Distribuidos</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>🎭 Simulando Fallos para Testing</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>import pytest
+import httpx
+from unittest.mock import patch
+import asyncio
+
+# Test de resiliencia: ¿qué pasa si el central está caído?
+@pytest.mark.asyncio
+async def test_sale_works_when_central_is_down():
+    """La venta debe completarse localmente incluso si central falla"""
+    
+    with patch('httpx.AsyncClient.post') as mock_post:
+        # Simular que central está caído
+        mock_post.side_effect = httpx.ConnectError("Connection refused")
+        
+        # Hacer una venta
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "http://localhost:8001/sales",
+                json={"product_id": 1, "quantity": 2}
+            )
+        
+        # La venta debe completarse a pesar del fallo
+        assert response.status_code == 200
+        assert "completed" in response.json()["status"]
+
+# Test de integración: flujo completo
+@pytest.mark.asyncio  
+async def test_full_integration_flow():
+    """Test del flujo completo: venta + notificación"""
+    
+    # 1. Hacer venta en sucursal
+    async with httpx.AsyncClient() as client:
+        sale_response = await client.post(
+            "http://localhost:8001/sales",
+            json={"product_id": 1, "quantity": 1}
+        )
+    
+    assert sale_response.status_code == 200
+    
+    # 2. Esperar que la notificación llegue al central
+    await asyncio.sleep(2)  # Dar tiempo a background task
+    
+    # 3. Verificar que el inventario central se actualizó
+    async with httpx.AsyncClient() as client:
+        inventory_response = await client.get("http://localhost:8000/inventory")
+    
+    products = inventory_response.json()
+    product_1 = next(p for p in products if p["id"] == 1)
+    assert product_1["stock"] < 100  # Debe haberse reducido</pre>
+            </div>
+
+            <h3>📊 Monitoreo y Observabilidad</h3>
+
+            <div class="learning-tip">
+                <h3>👀 Qué Monitorear en Producción</h3>
+                <ul>
+                    <li><strong>Métricas de negocio:</strong> Ventas por minuto, inventario disponible</li>
+                    <li><strong>Métricas técnicas:</strong> Latencia, error rate, throughput</li>
+                    <li><strong>Métricas de infraestructura:</strong> CPU, memoria, red</li>
+                    <li><strong>Métricas de comunicación:</strong> Fallos de notificación, reintentos</li>
+                </ul>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>📈 Métricas Simples con FastAPI</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>from collections import defaultdict
+from datetime import datetime
+import time
+
+# Contador simple de métricas
+metrics = {
+    "sales_count": 0,
+    "sales_revenue": 0.0,
+    "notification_failures": 0,
+    "avg_response_time": [],
+    "last_reset": datetime.now()
+}
+
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    duration = time.time() - start_time
+    
+    # Registrar tiempo de respuesta
+    metrics["avg_response_time"].append(duration)
+    
+    # Mantener solo los últimos 100 requests
+    if len(metrics["avg_response_time"]) > 100:
+        metrics["avg_response_time"].pop(0)
+    
+    return response
+
+@app.get("/metrics")
+async def get_metrics():
+    """Endpoint para monitoreo"""
+    avg_time = (
+        sum(metrics["avg_response_time"]) / len(metrics["avg_response_time"])
+        if metrics["avg_response_time"] else 0
+    )
+    
+    return {
+        "sales_completed": metrics["sales_count"],
+        "total_revenue": metrics["sales_revenue"],
+        "avg_response_time_ms": round(avg_time * 1000, 2),
+        "notification_failures": metrics["notification_failures"],
+        "uptime_since": metrics["last_reset"].isoformat()
+    }</pre>
+            </div>
+
+            <div class="tip-box">
+                <h3>🔧 Herramientas Útiles para Desarrollo</h3>
+                <ul>
+                    <li><strong>httpx CLI:</strong> <code>pip install httpx[cli]</code> para testing rápido</li>
+                    <li><strong>FastAPI docs:</strong> Siempre disponibles en <code>/docs</code></li>
+                    <li><strong>Postman/Insomnia:</strong> Para testing de APIs más complejo</li>
+                    <li><strong>Docker Compose:</strong> Para orquestar múltiples servicios</li>
+                    <li><strong>VS Code REST Client:</strong> Testing integrado en el editor</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer style="text-align: center; padding: 2rem; margin-top: 2rem; background: white; border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md);">
+            <h3 style="color: var(--green-accent); margin-bottom: 1rem;">🎓 Recursos Adicionales</h3>
+            <p>Esta guía es tu compañero constante. Guárdala, imprímela, y regresa a ella siempre que necesites claridad o dirección en tu aprendizaje.</p>
+            <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                <div style="background: var(--pastel-blue); padding: 1rem; border-radius: var(--border-radius); min-width: 200px;">
+                    <strong>📚 Para profundizar:</strong><br>
+                    Microservices Patterns (Chris Richardson)
+                </div>
+                <div style="background: var(--pastel-green); padding: 1rem; border-radius: var(--border-radius); min-width: 200px;">
+                    <strong>🛠️ Para practicar:</strong><br>
+                    Building Microservices (Sam Newman)
+                </div>
+                <div style="background: var(--pastel-purple); padding: 1rem; border-radius: var(--border-radius); min-width: 200px;">
+                    <strong>🎯 Para implementar:</strong><br>
+                    FastAPI Documentation
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let currentSection = 0;
+
+        function showSection(sectionIndex) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Mostrar la sección seleccionada
+            document.querySelector(`.section-card[data-section="${sectionIndex}"]`).classList.add('active');
+            
+            // Actualizar navegación
+            document.querySelectorAll('.section-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.section-nav-btn')[sectionIndex].classList.add('active');
+            
+            currentSection = sectionIndex;
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.parentElement.nextElementSibling;
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '¡Copiado!';
+                button.style.background = '#4CAF50';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#2196F3';
+                }, 2000);
+            });
+        }
+
+        // Navegación con teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentSection < 3) {
+                showSection(currentSection + 1);
+            } else if (e.key === 'ArrowLeft' && currentSection > 0) {
+                showSection(currentSection - 1);
+            }
+        });
+    </script>
+</body>
+</html>

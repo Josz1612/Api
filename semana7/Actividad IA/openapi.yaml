@@ -1,0 +1,103 @@
+openapi: 3.0.0
+info:
+  title: API Productos
+  version: 1.0.0
+paths:
+  /api/v1/products:
+    get:
+      summary: Listar productos
+      responses:
+        '200':
+          description: Lista de productos
+    post:
+      summary: Crear producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+      responses:
+        '201':
+          description: Producto creado
+  /api/v1/products/{id}:
+    get:
+      summary: Detalle de producto
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Producto
+        '404':
+          description: No encontrado
+    put:
+      summary: Actualizar producto
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdate'
+      responses:
+        '200':
+          description: Actualizado
+    delete:
+      summary: Eliminar producto
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '204':
+          description: Eliminado
+
+components:
+  schemas:
+    ProductBase:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 80
+        price:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          enum: [MXN, USD, EUR]
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+    ProductCreate:
+      allOf:
+        - $ref: '#/components/schemas/ProductBase'
+      required: [name, price, currency]
+    ProductUpdate:
+      allOf:
+        - $ref: '#/components/schemas/ProductBase'
+    Product:
+      allOf:
+        - $ref: '#/components/schemas/ProductBase'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
