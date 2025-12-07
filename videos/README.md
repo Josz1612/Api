@@ -10,33 +10,14 @@ Todos los videos de demostración del proyecto están disponibles en mi canal de
 
 ## 📺 Videos por Semana
 
-### Semana 1: API Básica con FastAPI
-- **Descripción:** Implementación de CRUD básico con FastAPI
-- **Link:** [Pendiente de subir]
-
-### Semana 2: Interfaz Web
-- **Descripción:** Dashboard HTML/CSS/JS con Chart.js
-- **Link:** [Pendiente de subir]
-
-### Semana 3: Mensajería con RabbitMQ
-- **Descripción:** Producers, consumers y event-driven architecture
-- **Link:** [Pendiente de subir]
-
-### Semana 4: Patrones de Resiliencia
-- **Descripción:** 6 estrategias de resiliencia incluyendo backoff exponencial
-- **Link:** [Pendiente de subir]
-
-### Semana 5: Testing y Pruebas de Carga
-- **Descripción:** Pytest, Locust y cobertura de código
-- **Link:** [Pendiente de subir]
 
 ### Semana 6: Escalabilidad
 - **Descripción:** Nginx load balancer, PostgreSQL replication y sharding
-- **Link:** [Pendiente de subir]
+- **Link:** https://youtube.com/shorts/Q6Q8xx-h7uo?si=zn4JiF4DMuEPqLH8
 
 ### Semana 7: Observabilidad
 - **Descripción:** Prometheus, Grafana y logging estructurado
-- **Link:** [Pendiente de subir]
+- **Link:** https://youtu.be/11gXKWQpTh8?si=J00MnO24JrdhMhCP
 
 ### Semana 7-IA: Integración con IA/ML
 - **Descripción:** 5 ejercicios con scikit-learn y transformers
@@ -44,11 +25,11 @@ Todos los videos de demostración del proyecto están disponibles en mi canal de
 
 ### Semana 8: Autenticación JWT
 - **Descripción:** Sistema completo de auth con roles y refresh tokens
-- **Link:** [Pendiente de subir]
+- **Link:** https://youtu.be/WHfh2GhwZc4?si=Mn0aZoq2kDUImrTz
 
 ### Semana 9: HTTPS/TLS y Secrets Management
 - **Descripción:** Certificados SSL/TLS y pydantic-settings
-- **Link:** [Pendiente de subir]
+- **Link:** https://youtu.be/WHfh2GhwZc4?si=Mn0aZoq2kDUImrTz
 
 ---
 
